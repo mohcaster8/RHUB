@@ -1,0 +1,147 @@
+/* 1. THEME CUSTOMIZATION
+ * -------------------------------------------
+ * All colors for the application are controlled here.
+ * Simply change the hex values below to customize the theme.
+ */
+:root {
+  /* -- RAW PALETTE (LIGHT) -- */
+  --dkt-blue: #3643BA;
+  --dkt-background-quiet: #F5F4F5;
+  --dkt-background: #F0EFED;
+  --dkt-border: #E1E0DF;
+  --dkt-secondary: #676565;
+  --dkt-primary: #101010;
+  --dkt-green-d1: #7AFFA6;
+  
+  /* -- SEMANTIC VARIABLES (LIGHT) -- */
+  --color-bg-primary: var(--dkt-background-quiet);
+  --color-bg-secondary: var(--dkt-background);
+  --color-bg-sidebar: var(--dkt-background-quiet);
+  --color-bg-accent: var(--dkt-blue);
+  --color-bg-info: var(--dkt-background-quiet);
+  --color-bg-toggle: var(--dkt-secondary);
+  --color-bg-hover-primary: var(--dkt-background-quiet);
+  --color-bg-hover-secondary: var(--dkt-border);
+  --color-bg-hover-sidebar: var(--dkt-border);
+  --color-bg-nav-active: var(--dkt-blue);
+
+  --color-text-primary: var(--dkt-primary);
+  --color-text-secondary: var(--dkt-secondary);
+  --color-text-sidebar: var(--dkt-primary);
+  --color-text-accent: var(--dkt-blue);
+  --color-text-info: var(--dkt-blue);
+  --color-border-primary: var(--dkt-border);
+  --color-border-accent: var(--dkt-blue);
+}
+
+.dark {
+  /* -- RAW PALETTE (DARK) -- */
+  --dkt-blue: #3643BA;
+  --dkt-background-quiet: #1a1a1a;
+  --dkt-background: #101010;
+  --dkt-border: #3a3a3a;
+  --dkt-secondary: #a0a0a0;
+  --dkt-primary: #F0EFED;
+  --dkt-green-d1: #7AFFA6;
+
+  /* -- SEMANTIC VARIABLES (DARK) -- */
+  --color-bg-primary: var(--dkt-background-quiet);
+  --color-bg-secondary: var(--dkt-background);
+  --color-bg-sidebar: var(--dkt-background);
+  --color-bg-accent: var(--dkt-blue);
+  --color-bg-info: var(--dkt-border);
+  --color-bg-toggle: var(--dkt-secondary);
+  --color-bg-hover-primary: #2a2a2a;
+  --color-bg-hover-secondary: #3a3a3a;
+  --color-bg-hover-sidebar: var(--dkt-background-quiet);
+  --color-bg-nav-active: var(--dkt-blue);
+  
+  --color-text-primary: var(--dkt-primary);
+  --color-text-secondary: var(--dkt-secondary);
+  --color-text-sidebar: var(--dkt-primary);
+  --color-text-accent: var(--dkt-blue);
+  --color-text-info: var(--dkt-green-d1);
+  --color-border-primary: var(--dkt-border);
+  --color-border-accent: var(--dkt-blue);
+}
+
+/* 2. BASE & UTILITY STYLES
+ * -------------------------------------------
+ * These styles apply the color variables to the application.
+ */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+#sidebar {
+    background-color: var(--color-bg-sidebar);
+}
+
+#content-area {
+    background-color: var(--color-bg-secondary);
+}
+
+.main-content {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--color-border-primary); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-secondary); }
+
+/* Theme toggle switch */
+.bg-toggle-bg { background-color: var(--color-bg-toggle); }
+input:checked ~ .dot { transform: translateX(100%); background-color: var(--dkt-blue); }
+input:checked ~ .block { background-color: var(--dkt-green-d1); }
+
+/* Dropdown Link Separators */
+.dropdown-item-separator {
+    height: 1px;
+    background-color: var(--color-border-primary);
+    margin: 4px 16px; /* Vertical and horizontal margin */
+}
+
+/* Alternating hover effect for dropdown items */
+.dropdown-link-item:hover {
+    background-color: var(--color-bg-hover-primary);
+}
+
+.dark .dropdown-link-item:nth-child(odd):hover {
+    background-color: var(--color-bg-hover-secondary);
+}
+
+.light .dropdown-link-item:nth-child(odd):hover {
+    background-color: var(--color-bg-hover-secondary);
+}
+
+/* Utility classes for dynamic content */
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-accent { color: var(--color-text-accent); }
+.text-info { color: var(--color-text-info); }
+.text-sidebar { color: var(--color-text-sidebar); }
+
+.bg-primary { background-color: var(--color-bg-primary); }
+.bg-secondary { background-color: var(--color-bg-secondary); }
+.bg-accent { background-color: var(--color-bg-accent); }
+.bg-info { background-color: var(--color-bg-info); }
+.bg-sidebar { background-color: var(--color-bg-sidebar); }
+
+.border-primary { border-color: var(--color-border-primary); }
+.border-accent { border-color: var(--color-border-accent); }
+
+.nav-link.active { background-color: var(--color-bg-nav-active); color: white !important; }
+.tab-button.active { border-bottom-color: var(--color-text-accent); color: var(--color-text-accent); }
+
+.hover\:bg-sidebar-hover:hover {
+  background-color: var(--color-bg-hover-sidebar);
+}
+

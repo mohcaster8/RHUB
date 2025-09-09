@@ -2,15 +2,34 @@
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net/npm/flatpickr https://www.gstatic.com; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css; 
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data:;
+        connect-src 'self' https://firestore.googleapis.com;
+        frame-src 'self' https://docs.google.com data:;
+    ">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resource Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="RHUB.css">
 </head>
 <body class="bg-secondary text-primary">
 
-    <div class="flex h-screen">
+    <!-- Fallback for users with JavaScript disabled -->
+    <noscript>
+        <div class="w-screen h-screen flex items-center justify-center p-8 text-center">
+            <p>This application requires JavaScript to function properly. Please enable it in your browser settings.</p>
+        </div>
+    </noscript>
+
+    <!-- Main Application Structure -->
+    <div id="app-container" class="flex h-screen">
         <!-- Sidebar -->
         <aside id="sidebar" class="bg-sidebar w-64 min-h-screen p-4 shadow-lg fixed lg:relative transform -translate-x-full lg:translate-x-0 z-20 sidebar flex flex-col">
             <div class="flex items-center mb-8">
@@ -55,7 +74,38 @@
             </div>
         </main>
     </div>
-    <script src="RHUB.js"></script>
+
+    <!-- Container for modals -->
+    <div id="modal-container"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Core Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Expose Firebase modules to the global scope so RHUB.js can use them
+        window.firebase = {
+            initializeApp,
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            getFirestore
+        };
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="data.js"></script>
+    <script src="RHUB.js" type="module"></script>
+
 </body>
 </html>
-

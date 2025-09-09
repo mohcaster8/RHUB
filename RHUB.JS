@@ -1,451 +1,56 @@
+import { siteData } from './data.js';
+import { 
+    collection, 
+    doc, 
+    addDoc, 
+    getDoc, 
+    onSnapshot, 
+    setDoc, 
+    updateDoc, 
+    deleteDoc, 
+    query, 
+    where, 
+    getDocs 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Data for all pages and content sections of the site
-    const siteData = {
-        'home': {
-            title: 'Welcome to the Resource Hub',
-            content: `
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4 text-primary">DIGITAL LTC SPAIN</h2>
-                        <div class="w-full aspect-video rounded-lg overflow-hidden border border-primary">
-                            <iframe 
-                                src="https://docs.google.com/presentation/d/1zoMSEMddI1aF5essCyd7CPfR1tAdmb_e2BWmvRD0CxA/embed?start=false&loop=false&delayms=3000" 
-                                frameborder="0" 
-                                width="960" 
-                                height="569" 
-                                allowfullscreen="true" 
-                                mozallowfullscreen="true" 
-                                webkitallowfullscreen="true"
-                                class="w-full h-full">
-                            </iframe>
-                        </div>
-                    </div>
-                    <div class="text-center md:text-left">
-                         <h2 class="text-2xl font-bold mb-4 text-primary">Welcome,</h2>
-                        <p class="text-lg mb-6 text-secondary">This hub centralizes all the necessary documents, links, and information for the CC-LOG-ZES. Use the navigation on the left to find what you need.</p>
-                        <div class="p-4 bg-info border border-accent rounded-lg">
-                            <p class="text-info">This site was generated from the Google Sheet to provide a more user-friendly experience. All the original information is available here in an organized format.</p>
-                        </div>
-                    </div>
-                </div>
-            `
-        },
-        'key-links': {
-            title: 'Key Links & Tools',
-            type: 'links',
-            content: [
-                { 
-                    name: 'TWIST',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Spain', url: 'https://twist-vc-es.dktapp.cloud/twist-parcel-web/index.jsp' },
-                        { name: 'Italy', url: 'https://twist-vc-it.dktapp.cloud/twist-parcel-web/index.jsp' },
-                        { name: 'Romania', url: 'https://twist-vc-hu.dktapp.cloud/twist-parcel-web/index.jsp#NgPlatformPresenter' },
-                        { name: 'Turkey', url: 'https://twist-vc-il.dktapp.cloud/twist-parcel-web/index.jsp#NgPlatformPresenter' },
-                        { name: 'Israel', url: 'https://twist-vc-il.dktapp.cloud/twist-parcel-web/index.jsp#NgPlatformPresenter' },
-                        { name: 'Chile', url: 'https://twist-vc-cl.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Mexico', url: 'https://twist-vc-mx.dktapp.cloud/twist-parcel-web/index.jsp' },
-                        { name: 'Colombia', url: 'https://twist-vc-co.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Egypt', url: 'https://twist-vc-na.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'France', url: 'https://twist-vc-fr.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Germany', url: 'https://twist-vc-de.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Poland', url: 'https://twist-vc-pl.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'United Kingdom', url: 'https://twist-vc-uk.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Canada', url: 'https://twist-vc-am.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Netherlands', url: 'https://twist-vc-nl.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Malaysia', url: 'https://twist-vc-my.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' },
-                        { name: 'Thailand / Philippines / New Zealand', url: 'https://twist-vc-as.dktapp.cloud/twist-visu-web/index.jsp#WelcomePresenter' }
-                    ]
-                },
-                { 
-                    name: 'MANHATTAN',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'MANHATTAN', url: 'https://udcl.manhscale.com/scale/trans/dashboard' },
-                        { name: 'DASHBOARD', url: 'https://udclsci.manhscale.com/bi/?CAMNamespace=udcl' }
-                    ]
-                },
-                { name: 'SHIPPERBOX', url: 'https://shipper-front-vctech.dktapp.cloud/home?code=OCtoIYIALjtzKVGV07V8X9XI9f7OTZnfxFwAAALC&state=7fa334d19c344912b27a352edd70201e' },
-                { 
-                    name: 'WAREHOUSEBOX',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'PICKINGWAVEBOX', url: 'https://whbox-pickingwavebox-eu.dktapp.cloud/3020913078276/?date=2024-05-15&page=1&size=15' },
-                        { name: 'USERBOX', url: 'https://whbox-userbox.dktapp.cloud/search' },
-                        { name: 'SHIPIT', url: 'https://shipit-eu.dktapp.cloud/' }
-                    ]
-                },
-                 { 
-                    name: 'GEEK+',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Italia - Campania', url: 'http://172.21.83.2/static/html/login.html?r=http%3A%2F%2F172.21.83.2%2Fstatic%2Fhtml%2Fadmin%2Finventory%2FallowanceSearch.html%23currentPage%3D1', note: 'Login: 123456' },
-                        { name: 'Barcelona', url: 'http://172.21.83.2/static/html/login.html?r=http%3A%2F%2F172.21.83.2%2Fstatic%2Fhtml%2Fadmin%2Finventory%2FallowanceSearch.html%23currentPage%3D1', note: 'Login: 123456' },
-                        { name: 'Israel', url: 'http://172.21.90.2/static/html/login.html', note: 'Login: admin / 111111' }
-                    ]
-                },
-                { 
-                    name: 'EXOTEC PF',
-                    type: 'dropdown',
-                    note: 'Login: CC_LOG_ZES / ECOM_2024',
-                    links: [
-                        { name: 'App ControlTower', url: 'https://exotracker.exotec.com/' },
-                    ]
-                },
-                { 
-                    name: 'SQUARE',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Spain', url: 'https://crc.square.decathlon.net/es/' },
-                        { name: 'Italy', url: 'https://crc.square.decathlon.net/it/' },
-                        { name: 'Portugal', url: 'https://app.square.decathlon.net/pt' },
-                        { name: 'Romania', url: 'https://app.square.decathlon.net/ro' },
-                        { name: 'Turkey', url: 'https://app.square.decathlon.net/tr' },
-                        { name: 'CRC', url: 'https://crc.square.decathlon.net/' }
-                    ]
-                },
-                { 
-                    name: 'DCMR',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Drive', url: 'https://dcmr-driver.spain.decathlon.net/' },
-                        { name: 'User', url: 'https://dcmr.spain.decathlon.net/collaborator' }
-                    ]
-                },
-                { 
-                    name: 'CUPS',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Spain', url: 'https://twist-cups-v2-es.dktapp.cloud/' },
-                        { name: 'Italy', url: 'https://twist-cups-v2-it.dktapp.cloud/' },
-                        { name: 'Romania', url: 'https://twist-cups-v2-hu.dktapp.cloud/' },
-                        { name: 'Turkey', url: 'https://twist-cups-v2-tr.dktapp.cloud/' },
-                        { name: 'Israel', url: 'https://twist-cups-v2-il.dktapp.cloud/' },
-                        { name: 'Chile', url: 'https://twist-cups-v2-cl.dktapp.cloud/' },
-                        { name: 'Mexico', url: 'https://twist-cups-v2-mx.dktapp.cloud/' },
-                        { name: 'Colombia', url: 'https://twist-cups-v2-co.dktapp.cloud/' },
-                        { name: 'Brooklyn', url: 'https://brooklyn-cups.dktapp.cloud/admin' }
-                    ]
-                },
-                { 
-                    name: 'TRANSPORT',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Cape', url: 'https://cape.dktapp.cloud/capetm/index.jsp' },
-                        { name: 'Next', url: 'https://next.dktapp.cloud/next-cfm/index.jsp' },
-                        { name: 'Tattoo', url: 'https://tattoo.dktapp.cloud/tattoo/index.jsp' }
-                    ]
-                },
-                 { 
-                    name: 'PROFILES',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Identity Access', url: 'https://identity-access.decathlon.net/identityiq/home.jsf' },
-                        { name: 'MYGOOGLE', url: 'https://mygoogle.decathlon.net/' },
-                        { name: 'HDA', url: 'https://hda.spain.decathlon.net/' },
-                        { name: 'EPlanning', url: 'https://eplanningplus.decathlon.net/map' },
-                        { name: 'Distributions list', url: 'https://list-iam.dktapp.cloud/' },
-                        { name: 'New groups', url: 'https://mygooglev2.decathlon.net/' }
-                    ]
-                },
-                { 
-                    name: 'DEVICES',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Soti Mobicontrol', url: 'https://s095102.mobicontrolcloud.com/MobiControl/WebConsole' },
-                        { name: 'Meraki Dash', url: 'https://idpdecathlon.oxylane.com/idp/startSSO.ping?PartnerSpId=meraki-local-access' },
-                        { name: 'Meraki MX', url: 'https://idpdecathlon.oxylane.com/idp/startSSO.ping?PartnerSpId=https%3A%2F%2Fdashboard.meraki.com' },
-                        { name: 'WS1', url: 'https://decathlon.awmdm.com/AirWatch/Login?ReturnUrl=%2FAirWatch%2F#/Device/Dashboard' },
-                        { name: 'SMax', url: 'https://support.decathlon.net/saw/Requests?filterRepoName=filter-497986067&filterRepoNamespace=filterRepoAd-hoc' }
-                    ]
-                },
-                { 
-                    name: 'PAGER',
-                    type: 'dropdown',
-                    links: [
-                        { name: 'Pagerduty', url: 'https://decathlon.pagerduty.com/?signed_up=false', note: 'Login: cc-log-zes@decathlon.net / Decathlon01.' },
-                        { name: 'Perimetro no-as400', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfPu4s7ifmYRI_c0h2vxgZe3S6gr1V5DjOLtohGEQ4LkbRMCw/viewform', note: 'For NO-AS400 perimeters (wbox, shipit, twist)' },
-                        { name: 'Planilla duty', url: 'https://docs.google.com/document/d/1Z3TE5cabfoKzLGtqC33_W5tcKH6l55I9JSCnRz6yp1M/edit?tab=t.0' },
-                        { name: 'Historico Dutys', url: 'https://forms.gle/GVNb4YKNbcuWQ23N6' }
-                    ]
-                },
-                { name: 'RETBOX', url: 'https://retbox.dktapp.cloud/' },
-                { name: 'MASTERDATA', url: 'https://masterdatas-admin.dktapp.cloud/' },
-                { name: 'BROOKLYN', url: 'https://brooklyn.dktapp.cloud/' },
-                { name: 'Central Control Sheets', url: 'https://docs.google.com/spreadsheets/d/1hrWOhidd0ZhKl3OOLfh5Au_TZg8pXSqdiADOyzQB6iQ/edit?gid=1002240399#gid=1002240399' },
-            ],
-        },
-        'perimeter': {
-            title: 'Perimeter Zone',
-            type: 'tabs',
-            content: {
-                zes: [
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Barcelona', 'AS400 MACHINE': 'ESDKL02', L: 'L26', 'SAP NUMBER': 'W025', QUAI: 'QUAI05-106', 'PHONE NUMBER': '(+34) 937 79 88 30', 'TICKET DISCUSSION': 'DC Barcelona (ESDKL02 - W025)', HORARIOS: '', 'Numero Eplanning': '860' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'PF @', WAREHOUSE: 'Barcelona', 'AS400 MACHINE': '', L: '', 'SAP NUMBER': '', QUAI: '', 'PHONE NUMBER': '(+34) 937 79 88 30', 'TICKET DISCUSSION': 'PF @ Barcelona (3002)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Getafe / Gavilanes', 'AS400 MACHINE': 'ESDKL04', L: 'L35', 'SAP NUMBER': 'W005', QUAI: 'QUAI230', 'PHONE NUMBER': '(+34) 916 91 83 60', 'TICKET DISCUSSION': 'DC Getafe (ESDKL04 - W035)', HORARIOS: '', 'Numero Eplanning': '861' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Getafe / CLA', 'AS400 MACHINE': 'ESDKL04', L: 'L35', 'SAP NUMBER': 'W005', QUAI: 'QUAI345', 'PHONE NUMBER': '(+34) 916 91 84 07', 'TICKET DISCUSSION': '', HORARIOS: '', 'Numero Eplanning': '878' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'EDC - Specific', WAREHOUSE: 'Getafe // Specific Spain', 'AS400 MACHINE': 'ESDKL10.NEWGES68', L: 'L68', 'SAP NUMBER': 'W004', QUAI: 'QUAI254', 'PHONE NUMBER': '(+34) 916 91 83 60', 'TICKET DISCUSSION': 'EDC - Specific Madrid Sur CLA (ESDKL10.NEWGES68 - W034)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Barcelona / El Prat', 'AS400 MACHINE': 'ESDKL06', L: 'L56', 'SAP NUMBER': 'W056', QUAI: 'QUAI273-276', 'PHONE NUMBER': '(+34) 916 91 83 60', 'TICKET DISCUSSION': 'EDC El Prat (ESDKL06 - W056)', HORARIOS: '', 'Numero Eplanning': '873' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Leon', 'AS400 MACHINE': 'ESDKL07', L: 'L63', 'SAP NUMBER': 'W063', QUAI: 'QUAI286', 'PHONE NUMBER': '(+34) 987 39 14 69', 'TICKET DISCUSSION': 'DC Leon (ESDKL07 - W063)', HORARIOS: '', 'Numero Eplanning': '007' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'EDC', WAREHOUSE: 'Zaragoza', 'AS400 MACHINE': 'ESDKL08', L: 'L75', 'SAP NUMBER': 'W075', QUAI: 'QUAI284-285', 'PHONE NUMBER': '(+34) 876 53 34 00', 'TICKET DISCUSSION': 'EDC Zaragoza (ESDKL08 - W075)', HORARIOS: '', 'Numero Eplanning': '017' },
-                    { COUNTRY: 'Spain', 'DC - EDC': 'DC', WAREHOUSE: 'Molins', 'AS400 MACHINE': 'ESDKL11', L: '?', 'SAP NUMBER': 'W189', QUAI: 'QUAI409', 'PHONE NUMBER': '', 'TICKET DISCUSSION': 'EDC Molins (ESDKL11 - W189)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'DC', WAREHOUSE: 'Basiano // LSS', 'AS400 MACHINE': 'ITDKL01', L: 'L07', 'SAP NUMBER': 'W043', QUAI: 'QUAI248-249', 'PHONE NUMBER': '(+39) 025 00 33 194', 'TICKET DISCUSSION': 'DC Basiano (ITDKL01 - W043)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'PF @', WAREHOUSE: 'Basiano', 'AS400 MACHINE': '', L: '3121', 'SAP NUMBER': '', QUAI: '', 'PHONE NUMBER': '(+39) 026 00 33 194', 'TICKET DISCUSSION': 'PF @ Basiano (3121)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'DC', WAREHOUSE: 'Bologna / CAST', 'AS400 MACHINE': 'ITDKL03', L: 'L51', 'SAP NUMBER': 'W051', QUAI: 'QUAI299', 'PHONE NUMBER': '(+39) 051 00 97 505', 'TICKET DISCUSSION': 'DC Bologna (CSPT) (ITDKL03 - W051)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'EDC - Specific', WAREHOUSE: 'Bologna // CAST', 'AS400 MACHINE': 'ITDKL05.NEWGES08', L: 'L68', 'SAP NUMBER': 'W007', QUAI: 'QUAI143', 'PHONE NUMBER': '(+39) 011 91 39 920', 'TICKET DISCUSSION': 'EDC - Specific Brandizzo (ITDKL05.NEWGES08 - W007)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'DC', WAREHOUSE: 'Campania // MADD', 'AS400 MACHINE': 'ITDKL04', L: 'L60', 'SAP NUMBER': 'W060', QUAI: 'QUAI280', 'PHONE NUMBER': '(+39) 082 31 65 80 14', 'TICKET DISCUSSION': 'DC Campania (ITDKL04 - W060)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'PF @', WAREHOUSE: 'Campania // MADD', 'AS400 MACHINE': '', L: '2707', 'SAP NUMBER': '', QUAI: '', 'PHONE NUMBER': '(+39) 082 31 65 80 14', 'TICKET DISCUSSION': 'PF @ Maddaloni (2707)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'BB', WAREHOUSE: 'Brendazzo', 'AS400 MACHINE': 'FEWKL05', L: 'L46', 'SAP NUMBER': 'W468', QUAI: 'QUAI624', 'PHONE NUMBER': '(+39) 010 01 39 920', 'TICKET DISCUSSION': '', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'DC', WAREHOUSE: 'Factory IT Rocca // ROCC', 'AS400 MACHINE': 'ITDKL06', L: 'L81', 'SAP NUMBER': 'W177', QUAI: 'QUAI393-394', 'PHONE NUMBER': '(+39) 342 10 24 927', 'TICKET DISCUSSION': 'DC Factory IT Rocca (ITDKL06 - W177)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Italy', 'DC - EDC': 'EDC', WAREHOUSE: 'Factory IT Rivalta', 'AS400 MACHINE': 'ITDKL07', L: 'L36', 'SAP NUMBER': 'W182', QUAI: 'QUAI400', 'PHONE NUMBER': '(+39) 346 58 11 608', 'TICKET DISCUSSION': 'EDC - Specific Factory IT Rivalta (ITDKL07 - W182)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Portugal', 'DC - EDC': 'DC', WAREHOUSE: 'Setubal', 'AS400 MACHINE': 'PTDKL01', L: 'L60', 'SAP NUMBER': 'W077', QUAI: 'QUAI299', 'PHONE NUMBER': '(+351) 265 72 02 30', 'TICKET DISCUSSION': 'DC Setubal (PTDKL01 - W077)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Portugal', 'DC - EDC': 'EDC - Specific', WAREHOUSE: 'Setubal', 'AS400 MACHINE': 'PTDKL01.NEWGES78', L: 'L78', 'SAP NUMBER': 'W078', QUAI: 'QUAI299', 'PHONE NUMBER': '(+351) 969 55 72 51', 'TICKET DISCUSSION': 'EDC - Specific Setubal (PTDKL01.NEWGES78 - W078)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Portugal', 'DC - EDC': 'DC', WAREHOUSE: 'Factory PT', 'AS400 MACHINE': 'PTDKL02', L: 'L74', 'SAP NUMBER': 'W174', QUAI: 'QUAI397', 'PHONE NUMBER': '(+351) 910 80 59 26', 'TICKET DISCUSSION': 'EDC Factory PT (PTDKL02 - W174)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'LATAM', 'DC - EDC': 'DC', WAREHOUSE: 'Santiago Chile', 'AS400 MACHINE': 'CLDKL01', L: 'L44', 'SAP NUMBER': 'W143', QUAI: 'QUAI350', 'PHONE NUMBER': '(+56)', 'TICKET DISCUSSION': 'DC Chile (CLDKL01 - W143)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'LATAM', 'DC - EDC': 'EDC', WAREHOUSE: 'Santiago Chile', 'AS400 MACHINE': 'CLDKL01', L: 'L44', 'SAP NUMBER': 'W142', QUAI: 'QUAI350', 'PHONE NUMBER': '', 'TICKET DISCUSSION': '', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'LATAM', 'DC - EDC': 'DC', WAREHOUSE: 'Colombia', 'AS400 MACHINE': 'CODKL01', L: 'L30', 'SAP NUMBER': 'W117', QUAI: 'W036', 'PHONE NUMBER': '(+57)', 'TICKET DISCUSSION': 'DC Colombia (CODKL01 - W117)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'LATAM', 'DC - EDC': 'EDC', WAREHOUSE: 'Booster Colombia', 'AS400 MACHINE': 'CODKL02', L: 'L29', 'SAP NUMBER': 'W107', QUAI: 'QUAI334-335', 'PHONE NUMBER': '(+57)', 'TICKET DISCUSSION': 'DC Booster Colombia (CODKL02 - W107)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'LATAM', 'DC - EDC': 'DC', WAREHOUSE: 'Mexico', 'AS400 MACHINE': 'MXDKL01', L: 'L03', 'SAP NUMBER': 'W131', QUAI: 'QUAI332', 'PHONE NUMBER': '(+52)', 'TICKET DISCUSSION': 'DC Mexico (SADKL01 / MXDKL01 - W131)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Romania', 'DC - EDC': 'DC', WAREHOUSE: 'Bucharest', 'AS400 MACHINE': 'RODKL01', L: 'L12', 'SAP NUMBER': 'W112', QUAI: 'QUAI333', 'PHONE NUMBER': '(+40) 212 084 170', 'TICKET DISCUSSION': 'DC Bucharest (RODKL01 - W112)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Romania', 'DC - EDC': 'EDC - Specific', WAREHOUSE: 'Bucharest', 'AS400 MACHINE': 'RODKL01.NEWGES82', L: 'L82', 'SAP NUMBER': 'W159', QUAI: 'QUAI360', 'PHONE NUMBER': '(+40) 212 084 170', 'TICKET DISCUSSION': 'EDC - Specific Bucharest (RODKL01.NEWGES82 - W159)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Romania', 'DC - EDC': 'EDC', WAREHOUSE: 'Factory RO', 'AS400 MACHINE': 'RODKL02', L: 'L89', 'SAP NUMBER': 'W178', QUAI: 'QUAI396', 'PHONE NUMBER': '(+40)', 'TICKET DISCUSSION': 'EDC Factory RO (RODKL02 - W178)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Türkiye', 'DC - EDC': 'DCEOC', WAREHOUSE: 'Instanbul', 'AS400 MACHINE': 'TRDKL01', L: 'L05', 'SAP NUMBER': 'W085', QUAI: 'QUAI304-305', 'PHONE NUMBER': '(+90) 505 12 00 880', 'TICKET DISCUSSION': 'DC Turkey (TRDKL01 - W085)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Israel', 'DC - EDC': 'DC', WAREHOUSE: 'Tel Aviv', 'AS400 MACHINE': 'ILDKL01', L: 'L33', 'SAP NUMBER': 'W141', QUAI: 'QUAI341', 'PHONE NUMBER': '(+972)', 'TICKET DISCUSSION': 'DC Tell Aviv (ILDKL01 - W141)', HORARIOS: '', 'Numero Eplanning': '' },
-                    { COUNTRY: 'Egypt', 'DC - EDC': 'DC', WAREHOUSE: 'Egypt', 'AS400 MACHINE': 'EGDKL01', L: 'L55', 'SAP NUMBER': 'W150', QUAI: 'QUAI 351', 'PHONE NUMBER': '(+20)', 'TICKET DISCUSSION': 'DC Egypt (EGDKL01 - W150)', HORARIOS: '', 'Numero Eplanning': '' },
-                ],
-                zen: [
-                    { COUNTRY: 'Canada/USA', WH: 'W133', AS400: 'AMDKL01', TYPE: 'CAR / CAC', NOM: 'CAR MONTREAL (Saint-Laurent)' },
-                    { COUNTRY: 'Canada/USA', WH: 'W135', AS400: 'AMDKL01', TYPE: 'CAR / CAC', NOM: 'OAKLAND / USA' },
-                    { COUNTRY: 'Belgium', WH: 'W054', AS400: 'BEDKL02', TYPE: 'CAR', NOM: 'CAC LILLE (Henin) (anciennement WILLEBROEK)' },
-                    { COUNTRY: 'Belgium', WH: 'W113', AS400: 'BEDKL02', TYPE: 'DEVENT', NOM: 'Spécifique BENELUX' },
-                    { COUNTRY: 'Brazil', WH: 'W041', AS400: 'BRDKL01', TYPE: 'CAR', NOM: 'EMBU (Brésil)' },
-                    { COUNTRY: 'Ivory Coast', WH: 'W173', AS400: 'CIDKL01', TYPE: 'CAR/DC', NOM: 'CAR IVORY COAST (ABIDJAN)' },
-                    { COUNTRY: 'Switzerland', WH: 'W139', AS400: 'CHDKL01', TYPE: 'CAR', NOM: 'ONNENS (Suisse)' },
-                    { COUNTRY: 'Germany', WH: 'W083', AS400: 'DEDKL01', TYPE: 'CAR', NOM: 'MANNHEIM' },
-                    { COUNTRY: 'Germany', WH: 'W099', AS400: 'DEDKL01', TYPE: 'Spécifique', NOM: 'Spécifique ALLEMAGNE' },
-                    { COUNTRY: 'Germany', WH: 'W122', AS400: 'DEDKL02', TYPE: 'CAR', NOM: 'DORTMUND' },
-                    { COUNTRY: 'Algeria', WH: 'W168', AS400: 'DZDKL01', TYPE: 'CAC', NOM: 'ALGER' },
-                    { COUNTRY: 'France', WH: 'W009', AS400: 'FRDKL09', TYPE: 'CAC', NOM: 'ST MARTIN DE CRAU' },
-                    { COUNTRY: 'France', WH: 'W185', AS400: 'FRDKL85', TYPE: 'BOOSTER', NOM: 'MARSEILLE (SMC)' },
-                    { COUNTRY: 'France', WH: 'W011', AS400: 'FRDKL11', TYPE: 'CAR', NOM: 'LOMPRET WHLO' },
-                    { COUNTRY: 'France', WH: 'W016', AS400: 'FRDKL16', TYPE: 'CAR', NOM: 'BRETIGNY BRET' },
-                    { COUNTRY: 'France', WH: 'W019', AS400: 'FRDKL19 (FRDKL37 (Devent) FRDKL23 )', TYPE: 'CAR', NOM: 'SAINT QUENTIN FALLAVIER' },
-                    { COUNTRY: 'France', WH: 'W020', AS400: 'Mannathan', TYPE: 'PFE', NOM: 'MONTBARTIER (=CASTELNAU)' },
-                    { COUNTRY: 'France', WH: 'W023', AS400: 'FRDKL23 ( FRDKL37(devent) FRDKL19 )', TYPE: 'CAC', NOM: 'SATOLAS' },
-                    { COUNTRY: 'France', WH: 'W023', AS400: 'FRDKL23', TYPE: 'CAC', NOM: 'SAT1 (Parcolog)' },
-                    { COUNTRY: 'France', WH: 'W024', AS400: 'FRDKL24', TYPE: 'CAR', NOM: 'BUSY' },
-                    { COUNTRY: 'France', WH: 'W027', AS400: 'FRDKL27', TYPE: 'CAR', NOM: 'SAINTE LUCE SUR LOIRE (NANTES)' },
-                    { COUNTRY: 'France', WH: 'W028', AS400: 'FRDKL28', TYPE: 'CAR', NOM: 'WITTENHEIM (MULHOUSE)' },
-                    { COUNTRY: 'France', WH: 'W006', AS400: 'FRDKL37', TYPE: 'CAC', NOM: 'ROUVIGNIES SAV AGENCEMENT' },
-                    { COUNTRY: 'France', WH: 'W014', AS400: 'FRDKL37', TYPE: 'Composants', NOM: 'MAROC Composants Koodza' },
-                    { COUNTRY: 'France', WH: 'W018', AS400: 'FRDKL37', TYPE: 'CAC', NOM: 'CHAPONNAY (INTERRALOG)' },
-                    { COUNTRY: 'France', WH: 'W021', AS400: 'FRDKL37', TYPE: 'CAN', NOM: 'TANGER' },
-                    { COUNTRY: 'France', WH: 'W501', AS400: 'FRDKL72', TYPE: 'CAR', NOM: 'JETLANE, AML FR USINE BTWIN MKNIX FBTO' },
-                    { COUNTRY: 'France', WH: 'W126', AS400: 'FRDKL37', TYPE: 'CAC', NOM: 'CAC Afrique du sud' },
-                    { COUNTRY: 'France', WH: 'W156', AS400: 'FRDKL37', TYPE: 'BOOSTER', NOM: 'BOOSTER MAURITIUS' },
-                    { COUNTRY: 'France', WH: 'W053', AS400: 'FRDKL53', TYPE: 'CAR', NOM: 'CAEN (CAGNY)' },
-                    { COUNTRY: 'France', WH: 'W059', AS400: 'FRDKL59', TYPE: 'CAR', NOM: 'CESTAS' },
-                    { COUNTRY: 'France', WH: 'W059', AS400: 'FRDKL59', TYPE: 'CAR', NOM: 'Monbartier (débord)' },
-                    { COUNTRY: 'France', WH: 'W062', AS400: 'FRDKL62', TYPE: 'CAC', NOM: 'EVIN (Camp de base)' },
-                    { COUNTRY: 'France', WH: 'W062', AS400: 'FRDKL62', TYPE: 'PFE', NOM: 'PFE2 (Symastock)' },
-                    { COUNTRY: 'France', WH: 'W181', AS400: 'FRDKL69', TYPE: 'CAC', NOM: 'CAC LILLE (Henin)' },
-                    { COUNTRY: 'France', WH: 'W175', AS400: 'FRDKL72', TYPE: 'CAC', NOM: 'SANTES DEBORD AML SANT' },
-                    { COUNTRY: 'France', WH: 'W090', AS400: 'EWM', TYPE: 'CAC', NOM: 'ROUVIGNIES' },
-                    { COUNTRY: 'Hungary', WH: 'W071', AS400: 'HUDKL01', TYPE: 'CAR', NOM: 'HATVAN (Hongrie)' },
-                    { COUNTRY: 'Netherlands', WH: 'W146', AS400: 'NLDKL01', TYPE: 'CAR', NOM: 'TILBURG' },
-                    { COUNTRY: 'Poland', WH: 'W058', AS400: 'PLDKL01', TYPE: 'CAR', NOM: 'GLIWICE (Pologne)' },
-                    { COUNTRY: 'Poland', WH: 'W061', AS400: 'PLDKL02', TYPE: 'Spécifique', NOM: 'Spécifique POLOGNE' },
-                    { COUNTRY: 'Poland', WH: 'W115', AS400: 'PLDKL02', TYPE: 'CAR', NOM: 'LODZ (Prague)' },
-                    { COUNTRY: 'Tunisia', WH: 'W144', AS400: 'TNDKL01', TYPE: 'CAC', NOM: 'TUNIS' },
-                    { COUNTRY: 'United Kingdom', WH: 'W158', AS400: 'UKDKL01', TYPE: 'CAR', NOM: 'NORTHAMPTON' },
-                    { COUNTRY: 'United Kingdom', WH: 'W098', AS400: 'UKDKL01', TYPE: 'Spécifique', NOM: 'Spécifique ROYAUME-UNI' },
-                    { COUNTRY: 'France', WH: 'W002', AS400: 'ENTSUD', TYPE: 'CAR', NOM: 'Ensues' },
-                    { COUNTRY: 'France', WH: '', AS400: 'FRDKL11', TYPE: 'Debord', NOM: 'Lomme LOMM' },
-                    { COUNTRY: 'Morocco', WH: 'W184', AS400: 'MADKL01', TYPE: 'CAC / CAR', NOM: 'Mohammedia' }
-                ]
-            }
-        },
-         'run-log': {
-            title: 'RUN LOG',
-            type: 'table',
-            content: [
-                { "Escalation Group": "CC-ITRELAY-SEVILLA", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-LEON", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-BARCELONA", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-GETAFE", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-PFBA", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-MADRID-CLA", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-ZARAGOZA", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CC-ITRELAY-PRAT", Perimeter: "Enlaces INFO", Pagerduty: "" },
-                { "Escalation Group": "CS-ECOM-SPAIN", Perimeter: "ECOM menos MANHATTAN", Pagerduty: "" },
-                { "Escalation Group": "CS-LOG-SCALE-ZES", Perimeter: "ECOM solo MANHATTAN, BROOKLYN", Pagerduty: "" },
-                { "Escalation Group": "CP-LOG-MADRID", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CS-LOG-ZES-WAREHOUSE-SOFT", Perimeter: "AS400", Pagerduty: "" },
-                { "Escalation Group": "CS-LOGZES_DEVOPS", Perimeter: "DEVs", Pagerduty: "" },
-                { "Escalation Group": "CS-LOG-SPAIN", Perimeter: "EWM, DISPO STOCK", Pagerduty: "" },
-                { "Escalation Group": "CS-LASTMILE-ZES", Perimeter: "SB - ES/TK/Pt", Pagerduty: "" },
-                { "Escalation Group": "CC-ZES-RETAIL", Perimeter: "HD SANSE", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-ECOMMERCE-UNITED", Perimeter: "CUBE", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-FNR-ZES", Perimeter: "FNR", Pagerduty: "" },
-                { "Escalation Group": "CS-INFRA-SPAIN", Perimeter: "", Pagerduty: "" },
-                { "Escalation Group": "CS-ZES-NETWORK", Perimeter: "REDES", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-TELEPHONE-SPAIN", Perimeter: "TELEFONIA", Pagerduty: "" },
-                { "Escalation Group": "CE-OPS-SPAIN", Perimeter: "", Pagerduty: "" },
-                { "Escalation Group": "CE-ZES-LOCAL", Perimeter: "GDA", Pagerduty: "" },
-                { "Escalation Group": "CE-PEOPLEIT-ZES", Perimeter: "EPLANNING", Pagerduty: "" },
-                { "Escalation Group": "LU-ZES-MYDKT", Perimeter: "Descuentos", Pagerduty: "" },
-                { "Escalation Group": "CC-ZAM-RETAIL", Perimeter: "HD LATAM", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-SAP-ECOM", Perimeter: "SAP, DISPO STOCK", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-SHIPPERBOX", Perimeter: "SHIPPERBOX", Pagerduty: "Yes" },
-                { "Escalation Group": "CE-SHIPPERBOX-ITALY", Perimeter: "SHIPPERBOX ITALIA", Pagerduty: "" },
-                { "Escalation Group": "CS-LOG-ZEN-ECOM", Perimeter: "ECOM no DUTY", Pagerduty: "" },
-                { "Escalation Group": "CE-LOG-TWIST", Perimeter: "ECOM solo DUTY", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-LOG-SCALE", Perimeter: "MANHATTAN ZEN", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-RETURNS", Perimeter: "RETBOX", Pagerduty: "" },
-                { "Escalation Group": "CS-POSDATA", Perimeter: "POSLOG PT", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-ONESHOP-EUROPE", Perimeter: "PRESTASHOP, ONESHOP... %SHOP", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-CHOPPER", Perimeter: "CS-ECOMMERCE-UNITED", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-TETRIX", Perimeter: "INIX", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-MASTERDATAS", Perimeter: "ARTICULOS", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-LOG-WAREHOUSE-HARD", Perimeter: "TME", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-LOG-ZEN-WAREHOUSE-SOFT", Perimeter: "AS400", Pagerduty: "" },
-                { "Escalation Group": "CE-LOG-WAREHOUSE-SOFT", Perimeter: "TMA", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-TRANSPORT-CUSTOMS-EU", Perimeter: "CAPE", Pagerduty: "" },
-                { "Escalation Group": "CS-PURCHASE-EUROPE", Perimeter: "SAP PO ", Pagerduty: "" },
-                { "Escalation Group": "CS-IAM", Perimeter: "IDENTITY ACCESS", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-FLOW", Perimeter: "FLUJO", Pagerduty: "Yes" },
-                { "Escalation Group": "CE-LOG-BI", Perimeter: "VIEW", Pagerduty: "" },
-                { "Escalation Group": "CE-LOG-DUTY-NETWORK-DEVICES", Perimeter: "NETWORK DUTY (ISR, RO, TR)", Pagerduty: "Yes" },
-                { "Escalation Group": "CP-CANADA", Perimeter: "NETWORK DUTY ( LATAM)", Pagerduty: "Yes" },
-                { "Escalation Group": "CE-LOG-RFID-HARD", Perimeter: "EMBISPHERE", Pagerduty: "" },
-                { "Escalation Group": "CP-LOG-ITALY", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-PORTUGAL", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-TURKEY", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-ROMANIA", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-ISRAEL", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-EGYPT", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-CHILE", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-COLOMBIA", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CP-MEXICO", Perimeter: "RIL", Pagerduty: "Yes" },
-                { "Escalation Group": "CP-LOG-COLOMBIA", Perimeter: "RIL", Pagerduty: "" },
-                { "Escalation Group": "CS-NETWORK-ITALY", Perimeter: "REDES ITALIA", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-WAREHOUSEBOX", Perimeter: "PICKING WAREHOUSE BOX", Pagerduty: "Yes" },
-                { "Escalation Group": "CS-LOG-INFRA", Perimeter: "CAMBIOS Y ALTAS EN WSO ITALIA ", Pagerduty: "" },
-                { "Escalation Group": "CS-DIGITAL-WORKPLACE", Perimeter: "GOOGLE ", Pagerduty: "" },
-                { "Escalation Group": "CS-SAP-ARTICLE-AMI", Perimeter: "Problemas de valorizacion ", Pagerduty: "" },
-            ]
-        },
-        'as400-commands': {
-            title: 'AS400 Commands',
-            type: 'tabs',
-            content: {
-                utility: [
-                    { Function: 'Change from one machine to another without opening a new tab', Command: 'telnet + MachineName' },
-                    { Function: 'Change library', Command: 'editlibl' },
-                    { Function: 'Start SQL in AS400 - To query in AS400', Command: 'strsql' },
-                    { Function: 'QUERY LQT in AS400', Command: 'CALL LQTLST' },
-                    { Function: 'See Logs AS400', Command: 'DSPLOG' },
-                    { Function: 'Verify the history of the center backup', Command: 'VIEWSAVE' },
-                    { Function: 'Ping machines', Command: 'Ping machineXX' },
-                    { Function: 'See jobs in machine', Command: 'workjobq' },
-                    { Function: 'Messages in machine', Command: 'wrkmsg qsysopr' },
-                    { Function: 'See devices in machine', Command: 'wrkoutq' },
-                    { Function: 'See jobs individually, for example ss prelevement, ss radio', Command: 'Ss (job name)' },
-                    { Function: 'Work description', Command: 'workjobd "escribimos work"' },
-                    { Function: 'Check subsystems', Command: 'Strsbs (subsystem name)' },
-                    { Function: 'Connection with Niagara', Command: 'qr dest(niagara)' },
-                    { Function: 'MQREP Flows', Command: 'mqrep' },
-                    { Function: 'See screen tables', Command: 'WRKPGM screen' },
-                    { Function: 'Create profiles', Command: 'exploitusr' },
-                    { Function: 'See and modify profiles', Command: 'wrkusrprf' },
-                    { Function: 'Change Colis status / UAT', Command: 'call atmacolis' },
-                    { Function: 'MENU PRELEVEMENT TMA', Command: 'CALL TMAPREL' },
-                    { Function: 'Change EWM language of a colis (long colis to short)', Command: 'SSCC' }
-                ],
-                functionality: [
-                    { Function: 'Main menu as400', Command: 'CALL SOHMUPC' },
-                    { Function: '20 Menu GE', Command: 'gdmv2' },
-                    { Function: 'View an article', Command: 'call prcvisee' },
-                    { Function: 'View Colis', Command: 'call visucol' },
-                    { Function: 'Parameter management', Command: 'call majenpr' },
-                    { Function: ':menu : Warehouse Map', Command: 'CALL SOLIDFR "' },
-                    { Function: 'SAP commands menu', Command: 'CALL SLTIXFR "' },
-                    { Function: 'Param(trage des rafales)', Command: 'CALL SJGADFR "' },
-                    { Function: 'Create parameters of a rafal', Command: 'CALL TMAPREL' },
-                    { Function: 'E-commerce WAVES parameterization', Command: 'CALL SSQFDFR "' },
-                    { Function: 'Rafales a la carta', Command: 'CALL SMLJUPC' },
-                    { Function: 'UAT Suppression', Command: 'CALL PIDKDFR "' },
-                    { Function: 'CNT Blocked by reappro', Command: 'CALL STNFDFR (* *)' },
-                    { Function: 'View/Reedition/Reposition in stock Rafale', Command: 'CALL PGM(SJJ2XFR) PARM(* *)' },
-                    { Function: 'Warehouse map', Command: 'CALL SOLIDFR "' }
-                ],
-                dispositives: [
-                    { Function: 'menu modification bases RFIDs', Command: 'call SSF5DFR' },
-                    { Function: 'ITRPRF Workstation & Printer Menu', Command: 'GO WRKDEV' },
-                    { Function: 'Kill a transcriber', Command: 'endwtr impresora * immed' }
-                ],
-                passwords: [
-                    { Function: 'Get menu passwords', Command: 'SELECT * FROM gdmdkf.gdmpoptes WHERE OLIBOP like \'%Visualization%\';' },
-                    { Function: 'Get menu passwords SPAIN', Command: 'SELECT * FROM gdmdkf.gdmpoptes WHERE OPASSE !=\' \';' },
-                    { Function: 'Get menu passwords ITALY', Command: 'SELECT * FROM gdmdkf.gdmlopt4it WHERE OPASSE !=\' \';' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'select * from ANGLAIS.GDMLJNTUS WHERE OPASSE !=\'\' -- Passwords Turkish language TRDKL01' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'select * from TURKISH.GDMPOPTUS WHERE OLIBOP like \'%Rafallerin%\'; -- Search for a menu on Turkish language TRDKL01' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'select * from ANGLAIS.GDMLJNTUS WHERE OPASSE !=\'\' -- Passwords English language TRDKL01' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'select * from ANGLAIS.GDMLJNTUS WHERE OLIBOP like \'%card%\'; -- Search for a menu on English language TRDKL01' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.gdmlopt4it WHERE OPASSE !=\' \'; -- Passwords IT AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.gdmlopt4it WHERE OLIBOP like \'%Parametrage%\'; -- Search for a menu on IT AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.GDMPOPT WHERE OPASSE !=\' \'; -- Passwords PT AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.GDMPOPT WHERE OLIBOP like \'%Waves%\'; -- Search for a menu on PT AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdm.gdmpoptes WHERE OPASSE !=\' \'; -- Passwords ES AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.gdmpoptes WHERE OLIBOP like \'%vagues%\'; -- Search for a menu on ES AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.gdmpoptus WHERE OPASSE !=\' \'; -- Passwords MX AS400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM gdmdkf.gdmpoptus WHERE OLIBOP like \'%Tri%\'; -- Search for a menu on MX AS4S400' },
-                    { Function: 'Get menu passwords ENGLISH', Command: 'SELECT * FROM ESPAGNOL.GDMLJNTUS WHERE OLIBOP like \'%nouveaux%\'; -- Search for a menu on MX AS400' }
-                ]
-            }
-        },
-         'as400-tables': {
-            title: 'AS400 Tables',
-            type: 'tabs',
-            content: {
-                rafales: [
-                    { Table: 'SOCBCPP', 'Base Meaning': 'Line of the colis / rafale', 'Simplified Meaning': 'Lines that have colis associated with rafales' },
-                    { Table: 'MTASREP', 'Base Meaning': 'Stock Movements', 'Simplified Meaning': 'Stock Movements - supposed and realized quantities, no. of picking and directions' },
-                    { Table: 'MTA1REP', 'Base Meaning': 'Detail das Facturas', 'Simplified Meaning': 'Items that have reception (QUAI299) Picking (OPGMR) QC (PTONGA19) pending' },
-                    { Table: 'MTA4REP', 'Base Meaning': 'Header das facturas', 'Simplified Meaning': 'Same as above with less details' },
-                    { Table: 'MRNPREP', 'Base Meaning': 'Detail Action command/facture', 'Simplified Meaning': 'Associates the invoice to an internal code' },
-                    { Table: 'SKITREP', 'Base Meaning': 'Colis and detail of command', 'Simplified Meaning': 'Associates the internal code to the colis (each item that is picked has 1 internal code)' },
-                    { Table: 'MTFLOREP', 'Base Meaning': 'non livrés', 'Simplified Meaning': 'Not delivered' }
-                ],
-                replenishment: [
-                    { Table: 'SCJAHREP', 'Base Meaning': 'paramètres calcul', 'Simplified Meaning': 'Calculations were executed and respective parameterization' },
-                    { Table: 'SCJANREP', 'Base Meaning': 'lien demande / calcul', 'Simplified Meaning': 'Execution No. of the parameterization - associated with the calculation that generated' },
-                    { Table: 'SMFLREP', 'Base Meaning': 'entete calcul', 'Simplified Meaning': 'Info of each calculation' }
-                ],
-                reception: [
-                    { Flow: 'ASAPL', Header: 'SKHOCPP', Detail: 'SMCRCPP', 'General Explaining': 'Reception Orders flow that are sent to CAR, about the receptions that previously were ship from the CAC. In order to make the reception, AS400 CAR has to receive this flow.', 'Simplified Explaining': 'SAP sends a PO advance notice to CAR for goods shipped from CAC.' },
-                    { Flow: 'ALOGX', Header: 'SKHRCPP', Detail: 'SKHSCPP', 'General Explaining': 'When CAC receive the goods, it has to inform SAP about it', 'Simplified Explaining': 'CAC and CAR notify SAP of PO receipt.' },
-                    { Flow: 'BSAPL', Header: 'SKHYCPP', Detail: 'SLKMCPP', 'General Explaining': 'Other part of the information of reception flow in CAR. Since the CAC sends the Orders prepared inside Parcels created in their warehouse, there is this second flow, with Parcel information, which is used for the warehouse to make the reception by Parcel, instead of Order flow.', 'Simplified Explaining': 'SAP informs CAC and CAR about Parcels associated with a PO.' },
-                    { Flow: 'BLOGX', Header: 'SKHTCPP', Detail: 'SKHUCPP', 'General Explaining': 'This flow is used to receive the goods in AS400 CAR, and its information, when sent, closes the reception in SAP side.', 'Simplified Explaining': 'CAR and CAC confirm PO and Parcel receipt to close the PO in SAP.' },
-                    { Flow: 'CSAPL', Header: 'SKH9CPP', Detail: 'SLKSCPP', 'General Explaining': 'the orders that the CAC and CAR has to prepare in their picking in AS400', 'Simplified Explaining': 'SAP specifies what to pick for the order.' },
-                    { Flow: 'CLOGX', Header: 'SKHYCPP', Detail: 'SLKMCPP', 'General Explaining': 'When the picking is done and the goods are sent, from the CAC to CAR or CAR to Destination', 'Simplified Explaining': 'CAR and CAC confirm that the ordered items have been shipped.' },
-                    { Flow: 'DLOGX', Header: 'SKIDCPP', Detail: 'SKIDCPP', 'General Explaining': 'Flow of stock update between AS400 and SAP.', 'Simplified Explaining': 'Handles stock updates for IPs, quality control, or canceled orders to prevent stock discrepancies.' },
-                    { Flow: 'ELOGX', Header: 'SKIECPP', Detail: 'SKIECPP', 'General Explaining': 'Daily flow of sending Stock Picture from AS400 to SAP. It doesn"t change the Stock in SAP, it only informs the system about the Stock in AS400.', 'Simplified Explaining': 'CAC and CAR send a daily stock update to SAP for confirmation.' },
-                    { Flow: 'GSAPL', Header: 'SKH8CPP', Detail: 'SPEBCPP, SKHTCPP', 'General Explaining': 'Article referencing flow from SAP to AS400. It is important when; an article is created, when there are changes related to an article in SAP or if there is some problem with the article in AS400.', 'Simplified Explaining': 'SAP sends updates for specific articles.' }
-                ]
-            }
-        },
-        'bank-of-tickets': {
-            title: 'Bank of Tickets',
-            type: 'custom'
-        }
-    };
+
+    // --- Firebase Initialization ---
+    let app, db, auth, userId;
+    let unsubscribes = [];
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     
-    // DOM element references
+    try {
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyDjg8bck9o9tt8dzXA6LDwmaA8U6W26OC0",
+          authDomain: "fir-config-d0b9b.firebaseapp.com",
+          projectId: "fir-config-d0b9b",
+          storageBucket: "fir-config-d0b9b.firebasestorage.app",
+          messagingSenderId: "206796264808",
+          appId: "1:206796264808:web:4686c12f0e16a0c7f5f2dd",
+          measurementId: "G-NW84J4TKFY"
+        };
+    
+        app = window.firebase.initializeApp(firebaseConfig);
+        db = window.firebase.getFirestore(app);
+        auth = window.firebase.getAuth(app);
+    } catch (e) {
+        console.error("Firebase config is not available or invalid. App will not function correctly.", e);
+        // Hide loader and show an error message.
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        document.getElementById('app-container').innerHTML = `<div class="w-full h-full flex items-center justify-center p-8 text-center text-red-500">Could not initialize the application. Please check the console for errors.</div>`;
+        return;
+    }
+    
+    // --- DOM element references ---
     const navMenu = document.getElementById('nav-menu');
     const contentArea = document.getElementById('content-area');
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('sidebar');
+    const modalContainer = document.getElementById('modal-container');
 
     // Navigation items configuration
     const navItems = [
@@ -455,18 +60,44 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'run-log', text: 'RUN LOG', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>' },
         { id: 'as400-commands', text: 'AS400 Commands', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>' },
         { id: 'as400-tables', text: 'AS400 Tables', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' },
-        { id: 'bank-of-tickets', text: 'Bank of Tickets', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>'}
+        { id: 'bank-of-tickets', text: 'Bank of Tickets', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>'},
+        { id: 'tasks', text: 'Tasks', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>'},
+        { id: 'synchros', text: 'Synchros', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>'},
+        { id: 'known-issues', text: 'Known Issues', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'},
+        { id: 'dutys', text: 'DUTYS', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'},
+        { id: 'archived', text: 'Archived', icon: '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>'}
     ];
+    
+    /**
+     * Cleans up all active Firestore snapshot listeners.
+     */
+    const cleanupListeners = () => {
+        unsubscribes.forEach(unsub => unsub());
+        unsubscribes = [];
+    };
+
+    /**
+     * Sanitizes a string to prevent XSS attacks.
+     * @param {string} str - The string to sanitize.
+     * @returns {string} The sanitized string.
+     */
+    const sanitizeHTML = (str) => {
+        if (typeof str !== 'string') return '';
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    };
 
     /**
      * Renders the content for a given page ID into the main content area.
      * @param {string} pageId - The ID of the page to render.
      */
     const renderContent = (pageId) => {
-         // Highlight the active navigation link
+        cleanupListeners(); // Clean up old listeners before rendering new content
+
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
-            if(link.dataset.page === pageId) {
+            if (link.dataset.page === pageId) {
                 link.classList.add('active');
             }
         });
@@ -479,11 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = `<h2 class="text-3xl font-bold mb-6 pb-2 border-b border-primary text-primary">${pageData.title}</h2>`;
 
-        // Render content based on its type (links, tabs, table, etc.)
         if (pageData.type === 'links') {
             html += `
                 <div class="mb-6 relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
                     <input type="text" id="key-links-search" class="w-full p-2 pl-10 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary" placeholder="Search links...">
@@ -543,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             const headers = Object.keys(pageData.content[0]);
-            html += '<div class="overflow-x-auto rounded-lg border border-primary"><table id="run-log-table" class="min-w-full bg-secondary">';
+            html += `<div class="overflow-x-auto rounded-lg border border-primary"><table id="run-log-table" class="min-w-full bg-secondary compact-table">`;
             html += '<thead><tr class="bg-primary">';
             headers.forEach(header => {
                 html += `<th class="py-3 px-4 border-b border-primary text-left font-semibold text-secondary uppercase tracking-wider text-sm">${header}</th>`;
@@ -557,17 +187,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '</tr>';
             });
             html += '</tbody></table></div>';
-        } else if (pageData.type === 'custom' && pageId === 'bank-of-tickets') {
-            html = `<h2 class="text-3xl font-bold mb-6 pb-2 border-b border-primary text-primary">${pageData.title}</h2>`;
-            html += renderBankOfTicketsContent();
+        } else if (pageData.type === 'custom') {
+             html = `<h2 class="text-3xl font-bold mb-6 pb-2 border-b border-primary text-primary">${pageData.title}</h2>`;
+            switch (pageId) {
+                case 'bank-of-tickets': html += renderBankOfTicketsContent(); break;
+                case 'tasks': html += renderTasksContent(); break;
+                case 'synchros': html += renderSynchrosContent(); break;
+                case 'known-issues': html += renderKnownIssuesContent(); break;
+                case 'dutys': html += renderDutysContent(); break;
+                case 'archived': html += renderArchivedContent(); break;
+            }
         } else {
             html += pageData.content;
         }
 
         contentArea.innerHTML = html;
         
+        // Post-render initialization
         if (pageData.type === 'links') {
-            pageData.content.forEach((link, index) => {
+             pageData.content.forEach((link, index) => {
                 if (link.type === 'dropdown') {
                     const dropdownButton = document.getElementById(`dropdown-btn-${index}`);
                     if(dropdownButton) {
@@ -575,14 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             e.stopPropagation(); 
                             const clickedContent = document.getElementById(`dropdown-content-${index}`);
                             const isOpening = clickedContent.classList.contains('hidden');
-
-                            document.querySelectorAll('[id^="dropdown-content-"]').forEach(content => {
-                                content.classList.add('hidden');
-                            });
-                             document.querySelectorAll('[id^="dropdown-btn-"] svg').forEach(svg => {
-                                svg.classList.remove('rotate-180');
-                            });
-
+                            document.querySelectorAll('[id^="dropdown-content-"]').forEach(content => content.classList.add('hidden'));
+                            document.querySelectorAll('[id^="dropdown-btn-"] svg').forEach(svg => svg.classList.remove('rotate-180'));
                             if (isOpening) {
                                 clickedContent.classList.remove('hidden');
                                 dropdownButton.querySelector('svg').classList.add('rotate-180');
@@ -591,17 +223,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
-
             const searchInput = document.getElementById('key-links-search');
-            const linkItems = document.querySelectorAll('#key-links-grid .link-item');
-            
-            searchInput.addEventListener('keyup', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                linkItems.forEach(item => {
-                    item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            if (searchInput) {
+                const linkItems = document.querySelectorAll('#key-links-grid .link-item, #key-links-grid > a');
+                searchInput.addEventListener('keyup', () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    linkItems.forEach(item => {
+                        item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? '' : 'block';
+                    });
                 });
-            });
-
+            }
         }
 
         if (pageId === 'perimeter' || pageId === 'as400-commands' || pageId === 'as400-tables') {
@@ -610,6 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
             setupTableSearch('table-search', 'run-log-table');
         } else if (pageId === 'bank-of-tickets') {
             initializeBankOfTickets();
+        } else if (pageId === 'tasks') {
+            initializeTasksPage();
+        } else if (pageId === 'synchros') {
+            initializeSynchrosPage();
+        } else if (pageId === 'known-issues') {
+            initializeKnownIssuesPage();
+        } else if (pageId === 'dutys') {
+            initializeDutysPage();
+        } else if (pageId === 'archived') {
+            initializeArchivedPage();
         }
     };
     
@@ -638,17 +279,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+                tabButtons.forEach(btn => btn.classList.remove('active', 'border-accent', 'text-accent'));
+                button.classList.add('active', 'border-accent', 'text-accent');
                 tabContents.forEach(content => content.classList.add('hidden'));
                 document.getElementById(`${button.dataset.tab}-content`).classList.remove('hidden');
             });
         });
+
+        // Activate the first tab by default
+        if(tabButtons.length > 0) {
+            tabButtons[0].click();
+        }
     };
 
     const renderTableInTab = (containerId, data, filterOptions) => {
         const container = document.getElementById(containerId);
-        if (!container || !data || data.length === 0) return;
+        if (!container || !data || data.length === 0) {
+            if(container) container.innerHTML = "<p>No data available.</p>";
+            return;
+        }
 
         let tableHtml = `
             <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
@@ -707,6 +356,64 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('keyup', filterTable);
         if(filterOptions.countryFilter) countryFilter.addEventListener('change', filterTable);
     };
+    
+    const showGenericDeleteConfirmation = ({ itemType, onConfirm, permanent = false }) => {
+        const title = permanent ? 'Permanently Delete?' : 'Confirm Deletion';
+        const message = permanent 
+            ? `Are you sure you want to permanently delete the selected ${itemType}(s)? This action cannot be undone.`
+            : `Are you sure you want to delete this ${itemType}? It will be moved to the archive.`;
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="delete-modal-overlay">
+                <div class="modal-content text-center">
+                    <h3 class="text-xl font-bold mb-4">${title}</h3>
+                    <p class="text-secondary mb-6">${message}</p>
+                    <div class="flex justify-center gap-4">
+                        <button id="cancel-delete-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                        <button id="confirm-delete-btn" class="py-2 px-4 rounded-md bg-danger text-white">Delete</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+        
+        document.getElementById('confirm-delete-btn').onclick = () => {
+            onConfirm();
+            modalContainer.innerHTML = '';
+        };
+
+        document.getElementById('cancel-delete-btn').onclick = () => {
+            modalContainer.innerHTML = '';
+        };
+        document.getElementById('delete-modal-overlay').onclick = (e) => {
+             if (e.target.id === 'delete-modal-overlay') {
+                modalContainer.innerHTML = '';
+             }
+        };
+    };
+
+    const archiveItem = async (itemType, item) => {
+        if (!userId) return;
+        const archiveCollection = collection(db, `artifacts/${appId}/users/${userId}/archivedItems`);
+        await addDoc(archiveCollection, {
+            ...item,
+            archivedFrom: itemType,
+            archivedDate: new Date().toISOString().split('T')[0]
+        });
+        
+        const sourceCollectionName = {
+            'Ticket': 'tickets',
+            'Task': 'tasks',
+            'Synchro': 'synchros',
+            'Known Issue': 'known-issues',
+            'Duty': 'dutys'
+        }[itemType];
+
+        if(sourceCollectionName) {
+            const itemDocRef = doc(db, `artifacts/${appId}/users/${userId}/${sourceCollectionName}`, item.id);
+            await deleteDoc(itemDocRef);
+        }
+    };
 
     const renderBankOfTicketsContent = () => {
         return `
@@ -728,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div>
                             <label for="problem" class="block text-sm font-medium text-primary">Problem / Process</label>
-                            <textarea id="problem" name="problem" rows="3" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                            <textarea id="problem" name="problem" rows="9" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
                         </div>
                         <div>
                             <label for="attachment" class="block text-sm font-medium text-primary">Attachment (PDF only)</label>
@@ -747,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-3 px-4 border-b border-primary text-left font-semibold text-secondary uppercase tracking-wider text-sm">Category</th>
                                     <th class="py-3 px-4 border-b border-primary text-left font-semibold text-secondary uppercase tracking-wider text-sm">Subcategory</th>
                                     <th class="py-3 px-4 border-b border-primary text-left font-semibold text-secondary uppercase tracking-wider text-sm">Problem / Process</th>
+                                    <th class="py-3 px-4 border-b border-primary text-right font-semibold text-secondary uppercase tracking-wider text-sm">Actions</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -758,85 +466,212 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const initializeBankOfTickets = () => {
+        if (!userId) return;
         const ticketForm = document.getElementById('ticket-form');
         const ticketTableBody = document.querySelector('#ticket-table tbody');
         const ticketSearch = document.getElementById('ticket-search');
-        let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+        let localTicketsCache = [];
+        const ticketsCollection = collection(db, `artifacts/${appId}/users/${userId}/tickets`);
 
-        const renderTickets = (t) => {
+        const renderTickets = (tickets) => {
+            if(!ticketTableBody) return;
             ticketTableBody.innerHTML = '';
-            t.forEach(ticket => {
+            tickets.forEach(ticket => {
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-primary cursor-pointer';
+                row.className = 'hover:bg-primary ticket-row';
                 row.dataset.id = ticket.id;
+                
+                const problemText = sanitizeHTML(ticket.problem);
+                const truncatedProblem = problemText.length > 50 ? problemText.substring(0, 50) + '...' : problemText;
+
                 row.innerHTML = `
-                    <td class="py-3 px-4 border-b border-primary text-primary">${ticket.category}</td>
-                    <td class="py-3 px-4 border-b border-primary text-primary">${ticket.subcategory}</td>
-                    <td class="py-3 px-4 border-b border-primary text-primary">${ticket.problem}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(ticket.category)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(ticket.subcategory)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${truncatedProblem}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary text-right">
+                        <div class="actions-wrapper justify-end">
+                            <button class="edit-btn p-1 rounded-md bg-edit text-white" data-id="${ticket.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                            </button>
+                            <button class="delete-btn p-1 rounded-md bg-danger text-white" data-id="${ticket.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </td>
                 `;
+                
+                row.querySelector('.edit-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showEditModal(ticket.id);
+                });
+
+                row.querySelector('.delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showGenericDeleteConfirmation({
+                        itemType: 'ticket',
+                        onConfirm: () => archiveItem('Ticket', ticket)
+                    });
+                });
+
                 row.addEventListener('click', () => renderTicketDetails(ticket.id));
                 ticketTableBody.appendChild(row);
             });
         };
         
-        renderTickets(tickets);
-
-        ticketForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submit-ticket-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-
-            const formData = new FormData(ticketForm);
-            const attachment = formData.get('attachment');
-            
-            const saveTicket = (attachmentData = null) => {
-                tickets.push({
-                    id: Date.now(),
-                    category: formData.get('category'),
-                    subcategory: formData.get('subcategory'),
-                    problem: formData.get('problem'),
-                    attachment: attachmentData
-                });
-                localStorage.setItem('tickets', JSON.stringify(tickets));
-                renderTickets(tickets);
-                ticketForm.reset();
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Ticket';
-            };
-
-            if (attachment && attachment.size > 0) {
-                const reader = new FileReader();
-                reader.onloadend = () => saveTicket(reader.result);
-                reader.readAsDataURL(attachment);
-            } else {
-                saveTicket();
-            }
+        const unsubscribe = onSnapshot(ticketsCollection, (snapshot) => {
+            localTicketsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderTickets(localTicketsCache);
         });
+        unsubscribes.push(unsubscribe);
+
+        if(ticketForm) {
+            ticketForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submit-ticket-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                const formData = new FormData(ticketForm);
+                const attachment = formData.get('attachment');
+                
+                const saveTicket = async (attachmentData = null) => {
+                    await addDoc(ticketsCollection, {
+                        category: sanitizeHTML(formData.get('category')),
+                        subcategory: sanitizeHTML(formData.get('subcategory')),
+                        problem: sanitizeHTML(formData.get('problem')),
+                        attachment: attachmentData,
+                        createdAt: new Date()
+                    });
+                    ticketForm.reset();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Ticket';
+                };
+
+                if (attachment && attachment.size > 0) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => saveTicket(reader.result);
+                    reader.readAsDataURL(attachment);
+                } else {
+                    await saveTicket();
+                }
+            });
+        }
         
-        ticketSearch.addEventListener('keyup', () => {
-            const searchValue = ticketSearch.value.toLowerCase();
-            const filteredTickets = tickets.filter(t => 
-                Object.values(t).some(val => String(val).toLowerCase().includes(searchValue))
-            );
-            renderTickets(filteredTickets);
-        });
+       if (ticketSearch) {
+            ticketSearch.addEventListener('keyup', () => {
+                const searchValue = ticketSearch.value.toLowerCase();
+                const filteredTickets = localTicketsCache.filter(t => 
+                    Object.values(t).some(val => String(val).toLowerCase().includes(searchValue))
+                );
+                renderTickets(filteredTickets);
+            });
+        }
     };
 
-    const renderTicketDetails = (ticketId) => {
-        const tickets = JSON.parse(localStorage.getItem('tickets')) || [];
-        const ticket = tickets.find(t => t.id == ticketId);
+    const showEditModal = async (ticketId) => {
+        if(!userId) return;
+        const ticketDocRef = doc(db, `artifacts/${appId}/users/${userId}/tickets`, ticketId);
+        const ticketSnapshot = await getDoc(ticketDocRef);
+        if (!ticketSnapshot.exists()) return;
+        const ticket = ticketSnapshot.data();
 
-        if (ticket) {
+        const modalHTML = `
+             <div class="modal-overlay" id="edit-modal-overlay">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Edit Ticket</h3>
+                    <form id="edit-ticket-form" class="space-y-4">
+                        <div>
+                            <label for="edit-category" class="block text-sm font-medium text-primary">Category</label>
+                            <select id="edit-category" name="category" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                                <option>B2C</option><option>B2B</option><option>PTL</option><option>HHRR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit-subcategory" class="block text-sm font-medium text-primary">Subcategory</label>
+                            <select id="edit-subcategory" name="subcategory" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                                 <option>Twist</option><option>Manhattan</option><option>Shipperbox</option><option>ShipIt</option><option>Retbox</option><option>Brooklyn</option><option>Cups</option><option>AS400</option><option>WarehouseBox</option><option>Tacisa</option><option>Cape</option><option>Tatoo</option><option>Next</option><option>HDA</option><option>DCMR</option><option>Google</option><option>Eplanning</option><option>Identity Access</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit-problem" class="block text-sm font-medium text-primary">Problem / Process</label>
+                            <textarea id="edit-problem" name="problem" rows="12" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <div>
+                            <label for="edit-attachment" class="block text-sm font-medium text-primary">Attachment (PDF only)</label>
+                             <div id="current-attachment-info" class="text-sm text-secondary mb-2"></div>
+                            <input type="file" id="edit-attachment" name="attachment" accept=".pdf" class="mt-1 block w-full text-sm text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-info file:text-accent hover:file:bg-info"/>
+                        </div>
+                         <div class="flex justify-end gap-4">
+                            <button type="button" id="cancel-edit-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                            <button type="submit" class="py-2 px-4 rounded-md bg-accent text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+        
+        document.getElementById('edit-category').value = ticket.category;
+        document.getElementById('edit-subcategory').value = ticket.subcategory;
+        document.getElementById('edit-problem').value = ticket.problem;
+        
+        const attachmentInfo = document.getElementById('current-attachment-info');
+        if (ticket.attachment) {
+            attachmentInfo.innerHTML = `Current file attached. Upload a new file to replace it.`;
+        } else {
+            attachmentInfo.innerHTML = `No file attached.`;
+        }
+
+
+        document.getElementById('edit-ticket-form').onsubmit = (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const newAttachmentFile = form.attachment.files[0];
+
+            const updateTicketData = async (newAttachmentData) => {
+                const updatedData = {
+                    category: sanitizeHTML(form.category.value),
+                    subcategory: sanitizeHTML(form.subcategory.value),
+                    problem: sanitizeHTML(form.problem.value),
+                };
+                if (newAttachmentData !== undefined) {
+                    updatedData.attachment = newAttachmentData;
+                }
+                await updateDoc(ticketDocRef, updatedData);
+                modalContainer.innerHTML = '';
+            };
+            
+            if (newAttachmentFile) {
+                const reader = new FileReader();
+                reader.onloadend = () => updateTicketData(reader.result);
+                reader.readAsDataURL(newAttachmentFile);
+            } else {
+                 updateTicketData(ticket.attachment);
+            }
+        };
+
+        document.getElementById('cancel-edit-btn').onclick = () => modalContainer.innerHTML = '';
+        document.getElementById('edit-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'edit-modal-overlay') modalContainer.innerHTML = '';
+        };
+    };
+
+    const renderTicketDetails = async (ticketId) => {
+        if(!userId) return;
+        const ticketDocRef = doc(db, `artifacts/${appId}/users/${userId}/tickets`, ticketId);
+        const ticketSnapshot = await getDoc(ticketDocRef);
+
+        if (ticketSnapshot.exists()) {
+            const ticket = ticketSnapshot.data();
             let html = `
                 <button id="back-to-tickets" class="mb-6 inline-flex items-center gap-2 text-accent hover:underline">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
                     Back to Ticket List
                 </button>
-                <h3 class="text-2xl font-bold mb-4 text-primary">${ticket.problem}</h3>
+                <h3 class="text-2xl font-bold mb-4 text-primary">${sanitizeHTML(ticket.problem)}</h3>
                 <div class="space-y-2 text-primary">
-                    <p><strong>Category:</strong> ${ticket.category}</p>
-                    <p><strong>Subcategory:</strong> ${ticket.subcategory}</p>
+                    <p><strong>Category:</strong> ${sanitizeHTML(ticket.category)}</p>
+                    <p><strong>Subcategory:</strong> ${sanitizeHTML(ticket.subcategory)}</p>
                 </div>
             `;
             if (ticket.attachment) {
@@ -854,54 +689,1263 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- INITIALIZATION ---
+    const renderTasksContent = () => {
+        return `
+            <div id="task-board-container" class="space-y-8">
+                <div class="p-6 border border-primary rounded-lg bg-primary">
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Add a New Task</h3>
+                    <form id="task-form" class="space-y-4 md:space-y-0 md:flex md:gap-4 md:items-end">
+                        <div class="flex-grow">
+                            <label for="task-text" class="block text-sm font-medium text-primary">Task Description</label>
+                            <textarea id="task-text" name="task-text" rows="6" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="flex-grow">
+                            <label for="task-assigned" class="block text-sm font-medium text-primary">Assign To</label>
+                            <input type="text" id="task-assigned" name="task-assigned" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div class="flex-grow">
+                            <label for="task-due" class="block text-sm font-medium text-primary">Due Date</label>
+                            <input type="text" id="task-due" name="task-due" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <button type="submit" class="w-full md:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">Add Task</button>
+                    </form>
+                </div>
 
-    navItems.forEach(item => {
-        const link = document.createElement('a');
-        link.href = '#';
-        link.dataset.page = item.id;
-        link.className = 'nav-link flex items-center p-2 my-1 rounded-md text-sidebar hover:bg-sidebar-hover transition-colors';
-        link.innerHTML = `${item.icon} <span class="ml-3">${item.text}</span>`;
-        navMenu.appendChild(link);
-    });
-
-    navMenu.addEventListener('click', (e) => {
-        e.preventDefault();
-        const link = e.target.closest('a.nav-link');
-        if (link && link.dataset.page) {
-            renderContent(link.dataset.page);
-            if (window.innerWidth < 1024) sidebar.classList.add('-translate-x-full');
-        }
-    });
-    
-    menuToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
-
-    const themeToggle = document.getElementById('theme-toggle');
-    const applyTheme = (isDark) => {
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.documentElement.classList.toggle('dark', isDark);
-        document.documentElement.classList.toggle('light', !isDark); // Added for CSS specificity
-        themeToggle.checked = isDark;
+                <div class="mt-8">
+                    <input type="text" id="task-search" class="w-full p-2 border border-primary rounded-md mb-4 focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary" placeholder="Search tasks by description or assignee...">
+                    <div id="task-board" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="task-column">
+                            <h3 class="font-bold text-lg mb-4 p-3 rounded-md bg-secondary text-primary text-center">To Do</h3>
+                            <div class="task-list min-h-[200px] p-2 rounded-lg" data-status="todo"></div>
+                        </div>
+                        <div class="task-column">
+                            <h3 class="font-bold text-lg mb-4 p-3 rounded-md bg-secondary text-primary text-center">In Progress</h3>
+                            <div class="task-list min-h-[200px] p-2 rounded-lg" data-status="inprogress"></div>
+                        </div>
+                        <div class="task-column">
+                            <h3 class="font-bold text-lg mb-4 p-3 rounded-md bg-secondary text-primary text-center">Done</h3>
+                            <div class="task-list min-h-[200px] p-2 rounded-lg" data-status="done"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     };
-    themeToggle.addEventListener('change', (e) => applyTheme(e.target.checked));
-    
-    // Set initial theme
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedTheme = localStorage.getItem('theme');
-    applyTheme(savedTheme === 'dark' || (savedTheme === null && prefersDark));
 
-    // Add a listener for clicks outside of dropdowns to close them
-    window.addEventListener('click', (e) => {
-        if (!e.target.closest('[id^="dropdown-btn-"]')) {
-             document.querySelectorAll('[id^="dropdown-content-"]').forEach(content => {
-                content.classList.add('hidden');
+    const initializeTasksPage = () => {
+        if (!userId) return;
+        const taskForm = document.getElementById('task-form');
+        const taskLists = document.querySelectorAll('.task-list');
+        const taskSearch = document.getElementById('task-search');
+        let localTasksCache = [];
+        let draggedTaskId = null;
+        const tasksCollection = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
+
+        const flatpickrConfig = {
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            minDate: "today"
+        };
+        flatpickr("#task-due", flatpickrConfig);
+
+        const renderTasks = (tasks) => {
+            taskLists.forEach(list => list.innerHTML = '');
+            tasks.forEach(task => {
+                const list = document.querySelector(`.task-list[data-status="${task.status}"]`);
+                if (list) {
+                    const taskCard = document.createElement('div');
+                    taskCard.className = 'task-card';
+                    taskCard.draggable = true;
+                    taskCard.dataset.id = task.id;
+
+                    taskCard.innerHTML = `
+                       <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-primary font-medium pr-4">${sanitizeHTML(task.text)}</p>
+                                <div class="task-meta mt-2">
+                                    <span>
+                                        <strong class="text-primary">${sanitizeHTML(task.assignedTo)}</strong>
+                                        <span class="mx-1">|</span>
+                                        <span>Due: ${task.dueDate}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="edit-task-btn p-1 rounded-md bg-edit text-white" data-id="${task.id}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                                </button>
+                                <button class="delete-task-btn p-1 rounded-md bg-danger text-white" data-id="${task.id}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(taskCard);
+                }
             });
-            document.querySelectorAll('[id^="dropdown-btn-"] svg').forEach(svg => {
-                svg.classList.remove('rotate-180');
+        };
+
+        const unsubscribe = onSnapshot(tasksCollection, (snapshot) => {
+            localTasksCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderTasks(localTasksCache);
+        });
+        unsubscribes.push(unsubscribe);
+        
+        taskForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(taskForm);
+            await addDoc(tasksCollection, {
+                text: sanitizeHTML(formData.get('task-text')),
+                assignedTo: sanitizeHTML(formData.get('task-assigned')),
+                dueDate: formData.get('task-due'),
+                status: 'todo',
+                createdAt: new Date()
             });
+            taskForm.reset();
+            flatpickr("#task-due", flatpickrConfig);
+        });
+
+        taskSearch.addEventListener('keyup', () => {
+            const searchTerm = taskSearch.value.toLowerCase();
+            const filtered = localTasksCache.filter(task =>
+                task.text.toLowerCase().includes(searchTerm) ||
+                task.assignedTo.toLowerCase().includes(searchTerm)
+            );
+            renderTasks(filtered);
+        });
+        
+        contentArea.addEventListener('click', e => {
+            const deleteBtn = e.target.closest('.delete-task-btn');
+            if (deleteBtn) {
+                const taskId = deleteBtn.dataset.id;
+                const taskToArchive = localTasksCache.find(t => t.id === taskId);
+                 showGenericDeleteConfirmation({
+                    itemType: 'task',
+                    onConfirm: () => {
+                        if (taskToArchive) archiveItem('Task', taskToArchive);
+                    }
+                });
+            }
+            const editBtn = e.target.closest('.edit-task-btn');
+            if (editBtn) {
+                 const taskId = editBtn.dataset.id;
+                 showEditTaskModal(taskId);
+            }
+        });
+
+        contentArea.addEventListener('dragstart', e => {
+            if (e.target.classList.contains('task-card')) {
+                draggedTaskId = e.target.dataset.id;
+                e.target.classList.add('dragging');
+            }
+        });
+
+        contentArea.addEventListener('dragend', e => {
+            if (e.target.classList.contains('task-card')) {
+                e.target.classList.remove('dragging');
+                draggedTaskId = null;
+            }
+        });
+
+        taskLists.forEach(list => {
+            list.addEventListener('dragover', e => {
+                e.preventDefault();
+                list.classList.add('drag-over');
+            });
+            list.addEventListener('dragleave', () => list.classList.remove('drag-over'));
+            list.addEventListener('drop', async e => {
+                e.preventDefault();
+                list.classList.remove('drag-over');
+                if (draggedTaskId) {
+                    const newStatus = list.dataset.status;
+                    const taskDocRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, draggedTaskId);
+                    await updateDoc(taskDocRef, { status: newStatus });
+                }
+            });
+        });
+    };
+
+    const showEditTaskModal = async (taskId) => {
+        if (!userId) return;
+        const taskDocRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, taskId);
+        const taskSnap = await getDoc(taskDocRef);
+        if (!taskSnap.exists()) return;
+        const task = taskSnap.data();
+
+        const modalHTML = `
+            <div class="modal-overlay" id="edit-modal-overlay">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Edit Task</h3>
+                    <form id="edit-task-form" class="space-y-4">
+                        <div>
+                            <label for="edit-task-text" class="block text-sm font-medium text-primary">Task Description</label>
+                            <textarea id="edit-task-text" name="task-text" rows="9" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <div>
+                            <label for="edit-task-assigned" class="block text-sm font-medium text-primary">Assign To</label>
+                            <input type="text" id="edit-task-assigned" name="task-assigned" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-task-due" class="block text-sm font-medium text-primary">Due Date</label>
+                            <input type="text" id="edit-task-due" name="task-due" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button type="button" id="cancel-edit-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                            <button type="submit" class="py-2 px-4 rounded-md bg-accent text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+        
+        document.getElementById('edit-task-text').value = task.text;
+        document.getElementById('edit-task-assigned').value = task.assignedTo;
+        
+        flatpickr("#edit-task-due", {
+            dateFormat: "Y-m-d",
+            defaultDate: task.dueDate,
+            minDate: "today"
+        });
+
+        document.getElementById('edit-task-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            await updateDoc(taskDocRef, {
+                text: sanitizeHTML(form['task-text'].value),
+                assignedTo: sanitizeHTML(form['task-assigned'].value),
+                dueDate: form['task-due'].value
+            });
+            modalContainer.innerHTML = '';
+        };
+
+        document.getElementById('cancel-edit-btn').onclick = () => modalContainer.innerHTML = '';
+        document.getElementById('edit-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'edit-modal-overlay') modalContainer.innerHTML = '';
+        };
+    };
+
+
+    const renderSynchrosContent = () => {
+        // This function is now just a template renderer
+        return `
+            <div id="synchro-page-container">
+                <div class="mb-8 p-6 border border-primary rounded-lg bg-primary">
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Add New Meeting Note</h3>
+                    <form id="synchro-form" class="space-y-4">
+                        <div>
+                            <label for="synchro-type" class="block text-sm font-medium text-primary">Meeting Type</label>
+                            <select id="synchro-type" name="synchro-type" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                                <option>SYNCHROS</option>
+                                <option>COLECTIVAS</option>
+                                <option>COMMON BACKLOG</option>
+                                <option>RELAYS / RUNBOYS</option>
+                                <option>SYNCHROS ITALY/PORTUGAL</option>
+                            </select>
+                        </div>
+                        <div>
+                             <label for="synchro-date" class="block text-sm font-medium text-primary">Date</label>
+                             <input type="text" id="synchro-date" name="synchro-date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="synchro-info" class="block text-sm font-medium text-primary">Information</label>
+                            <textarea id="synchro-info" name="synchro-info" rows="12" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">Add Note</button>
+                    </form>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Meeting Notes</h3>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <div class="w-full md:w-1/3">
+                            <label for="synchro-type-filter" class="sr-only">Filter by Type</label>
+                             <select id="synchro-type-filter" class="w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                                <option value="">All Meeting Types</option>
+                                <option>SYNCHROS</option>
+                                <option>COLECTIVAS</option>
+                                <option>COMMON BACKLOG</option>
+                                <option>RELAYS / RUNBOYS</option>
+                                <option>SYNCHROS ITALY/PORTUGAL</option>
+                            </select>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <label for="synchro-date-filter" class="sr-only">Filter by Date</label>
+                            <input type="text" id="synchro-date-filter" placeholder="Filter by date range..." class="w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                         <div class="w-full md:w-1/3">
+                            <label for="synchro-search" class="sr-only">Search</label>
+                            <input type="text" id="synchro-search" class="w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary" placeholder="Search in content...">
+                        </div>
+                    </div>
+                    <div id="synchro-list" class="space-y-4">
+                        <!-- Notes will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const initializeSynchrosPage = () => {
+        if (!userId) return;
+        
+        const form = document.getElementById('synchro-form');
+        const searchInput = document.getElementById('synchro-search');
+        const typeFilter = document.getElementById('synchro-type-filter');
+        const dateFilterInput = document.getElementById('synchro-date-filter');
+        const listContainer = document.getElementById('synchro-list');
+        let localNotesCache = [];
+        const synchrosCollection = collection(db, `artifacts/${appId}/users/${userId}/synchros`);
+
+        const addFormDatepicker = flatpickr("#synchro-date", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+        const filterFormDatepicker = flatpickr(dateFilterInput, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            onChange: () => filterNotes()
+        });
+
+        const renderNotes = (notes) => {
+            listContainer.innerHTML = '';
+            if (notes.length === 0) {
+                listContainer.innerHTML = '<p class="text-secondary text-center">No meeting notes found for the selected criteria.</p>';
+                return;
+            }
+
+            notes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            notes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'synchro-card p-4 bg-primary rounded-lg border border-primary';
+                noteCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-accent">${sanitizeHTML(note.type)}</p>
+                            <p class="text-sm text-secondary">${note.date}</p>
+                        </div>
+                        <div class="card-actions">
+                             <button class="edit-synchro-btn p-1 rounded-md bg-edit text-white" data-id="${note.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                            </button>
+                            <button class="delete-synchro-btn p-1 rounded-md bg-danger text-white" data-id="${note.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-primary whitespace-pre-wrap">${sanitizeHTML(note.info)}</p>
+                `;
+                listContainer.appendChild(noteCard);
+            });
+        };
+
+        const filterNotes = () => {
+             const searchTerm = searchInput.value.toLowerCase();
+             const typeValue = typeFilter.value;
+             const selectedDates = filterFormDatepicker.selectedDates;
+             
+             const filtered = localNotesCache.filter(note => {
+                const textMatch = note.info.toLowerCase().includes(searchTerm);
+                const typeMatch = !typeValue || note.type === typeValue;
+                
+                let dateMatch = true;
+                if (selectedDates.length === 2) {
+                    const noteDate = new Date(note.date);
+                    const startDate = selectedDates[0];
+                    startDate.setHours(0,0,0,0);
+                    const endDate = selectedDates[1];
+                    endDate.setHours(23,59,59,999);
+                    dateMatch = noteDate >= startDate && noteDate <= endDate;
+                }
+
+                return textMatch && typeMatch && dateMatch;
+             });
+             renderNotes(filtered);
+        };
+        
+        const unsubscribe = onSnapshot(synchrosCollection, (snapshot) => {
+            localNotesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            filterNotes();
+        });
+        unsubscribes.push(unsubscribe);
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            await addDoc(synchrosCollection, {
+                type: sanitizeHTML(formData.get('synchro-type')),
+                date: formData.get('synchro-date'),
+                info: sanitizeHTML(formData.get('synchro-info')),
+                createdAt: new Date()
+            });
+            form.reset();
+            addFormDatepicker.setDate(new Date(), true);
+        });
+
+        listContainer.addEventListener('click', e => {
+            const deleteBtn = e.target.closest('.delete-synchro-btn');
+            if (deleteBtn) {
+                const noteId = deleteBtn.dataset.id;
+                const noteToArchive = localNotesCache.find(n => n.id === noteId);
+                showGenericDeleteConfirmation({
+                    itemType: 'note',
+                    onConfirm: () => {
+                        if(noteToArchive) archiveItem('Synchro', noteToArchive);
+                    }
+                });
+            }
+             const editBtn = e.target.closest('.edit-synchro-btn');
+            if (editBtn) {
+                 const noteId = editBtn.dataset.id;
+                 showEditSynchroModal(noteId);
+            }
+        });
+        
+        searchInput.addEventListener('keyup', filterNotes);
+        typeFilter.addEventListener('change', filterNotes);
+    };
+
+    const showEditSynchroModal = async (noteId) => {
+        if (!userId) return;
+        const noteDocRef = doc(db, `artifacts/${appId}/users/${userId}/synchros`, noteId);
+        const noteSnap = await getDoc(noteDocRef);
+        if (!noteSnap.exists()) return;
+        const note = noteSnap.data();
+
+        const modalHTML = `
+            <div class="modal-overlay" id="edit-modal-overlay">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Edit Note</h3>
+                    <form id="edit-synchro-form" class="space-y-4">
+                        <div>
+                            <label for="edit-synchro-type" class="block text-sm font-medium text-primary">Meeting Type</label>
+                            <select id="edit-synchro-type" name="synchro-type" class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                                <option>SYNCHROS</option>
+                                <option>COLECTIVAS</option>
+                                <option>COMMON BACKLOG</option>
+                                <option>RELAYS / RUNBOYS</option>
+                                <option>SYNCHROS ITALY/PORTUGAL</option>
+                            </select>
+                        </div>
+                        <div>
+                             <label for="edit-synchro-date" class="block text-sm font-medium text-primary">Date</label>
+                             <input type="text" id="edit-synchro-date" name="synchro-date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-synchro-info" class="block text-sm font-medium text-primary">Information</label>
+                            <textarea id="edit-synchro-info" name="synchro-info" rows="12" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button type="button" id="cancel-edit-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                            <button type="submit" class="py-2 px-4 rounded-md bg-accent text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+
+        document.getElementById('edit-synchro-type').value = note.type;
+        document.getElementById('edit-synchro-info').value = note.info;
+        flatpickr("#edit-synchro-date", {
+            dateFormat: "Y-m-d",
+            defaultDate: note.date
+        });
+
+
+        document.getElementById('edit-synchro-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            await updateDoc(noteDocRef, {
+                type: sanitizeHTML(form['synchro-type'].value),
+                date: form['synchro-date'].value,
+                info: sanitizeHTML(form['synchro-info'].value)
+            });
+            modalContainer.innerHTML = '';
+        };
+
+        document.getElementById('cancel-edit-btn').onclick = () => modalContainer.innerHTML = '';
+        document.getElementById('edit-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'edit-modal-overlay') modalContainer.innerHTML = '';
+        };
+    };
+
+    const renderKnownIssuesContent = () => {
+        return `
+            <div id="known-issues-page-container">
+                <div class="mb-8 p-6 border border-primary rounded-lg bg-primary">
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Log a New Issue</h3>
+                    <form id="issue-form" class="space-y-4">
+                        <div>
+                            <label for="issue-title" class="block text-sm font-medium text-primary">Title</label>
+                            <input type="text" id="issue-title" name="issue-title" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                             <label for="issue-date" class="block text-sm font-medium text-primary">Date</label>
+                             <input type="text" id="issue-date" name="issue-date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="issue-description" class="block text-sm font-medium text-primary">Description</label>
+                            <textarea id="issue-description" name="issue-description" rows="9" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">Add Issue</button>
+                    </form>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Logged Issues</h3>
+                    <input type="text" id="issue-search" class="w-full p-2 border border-primary rounded-md mb-4 focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary" placeholder="Search by title or description...">
+                    <div id="issue-list" class="space-y-4"></div>
+                </div>
+            </div>
+        `;
+    };
+
+    const initializeKnownIssuesPage = () => {
+        if (!userId) return;
+        const form = document.getElementById('issue-form');
+        const searchInput = document.getElementById('issue-search');
+        const listContainer = document.getElementById('issue-list');
+        let localIssuesCache = [];
+        const issuesCollection = collection(db, `artifacts/${appId}/users/${userId}/known-issues`);
+
+        flatpickr("#issue-date", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+
+        const renderIssues = (issues) => {
+            listContainer.innerHTML = '';
+             if (issues.length === 0) {
+                listContainer.innerHTML = '<p class="text-secondary text-center">No issues logged yet.</p>';
+                return;
+            }
+
+            issues.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            issues.forEach(issue => {
+                const issueCard = document.createElement('div');
+                issueCard.className = 'known-issue-card p-4 bg-primary rounded-lg border border-primary';
+                const statusClass = issue.status === 'Solved' ? 'status-solved' : 'status-inprogress';
+                const closureDateHTML = issue.status === 'Solved' && issue.closureDate 
+                    ? `<p class="text-sm text-secondary mt-1">Closed on: ${issue.closureDate}</p>` 
+                    : '';
+
+                issueCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-lg text-primary">${sanitizeHTML(issue.title)}</h4>
+                            <p class="text-sm text-secondary">${issue.date}</p>
+                             ${closureDateHTML}
+                        </div>
+                        <div class="flex items-center gap-4">
+                             <span class="status-badge ${statusClass}">${issue.status}</span>
+                             <div class="card-actions">
+                                 <button class="toggle-status-btn py-1 px-2 text-sm rounded-md bg-secondary text-primary" data-id="${issue.id}">Toggle Status</button>
+                                 <button class="edit-issue-btn p-1 rounded-md bg-edit text-white" data-id="${issue.id}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                                </button>
+                                <button class="delete-issue-btn p-1 rounded-md bg-danger text-white" data-id="${issue.id}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-primary whitespace-pre-wrap">${sanitizeHTML(issue.description)}</p>
+                `;
+                listContainer.appendChild(issueCard);
+            });
+        };
+        
+        const unsubscribe = onSnapshot(issuesCollection, snapshot => {
+            localIssuesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderIssues(localIssuesCache);
+        });
+        unsubscribes.push(unsubscribe);
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            await addDoc(issuesCollection, {
+                title: sanitizeHTML(formData.get('issue-title')),
+                date: formData.get('issue-date'),
+                description: sanitizeHTML(formData.get('issue-description')),
+                status: 'In Progress',
+                closureDate: null
+            });
+            form.reset();
+             flatpickr("#issue-date", {
+                dateFormat: "Y-m-d",
+                defaultDate: "today"
+            });
+        });
+        
+        searchInput.addEventListener('keyup', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filtered = localIssuesCache.filter(issue => 
+                issue.title.toLowerCase().includes(searchTerm) || 
+                issue.description.toLowerCase().includes(searchTerm)
+            );
+            renderIssues(filtered);
+        });
+
+         listContainer.addEventListener('click', async e => {
+            const deleteBtn = e.target.closest('.delete-issue-btn');
+            if (deleteBtn) {
+                const issueId = deleteBtn.dataset.id;
+                const issueToArchive = localIssuesCache.find(i => i.id === issueId);
+                showGenericDeleteConfirmation({
+                    itemType: 'issue',
+                    onConfirm: () => {
+                        if(issueToArchive) archiveItem('Known Issue', issueToArchive);
+                    }
+                });
+            }
+            const editBtn = e.target.closest('.edit-issue-btn');
+            if(editBtn) {
+                const issueId = editBtn.dataset.id;
+                showEditIssueModal(issueId);
+            }
+            const toggleBtn = e.target.closest('.toggle-status-btn');
+            if(toggleBtn) {
+                 const issueId = toggleBtn.dataset.id;
+                 const issueToToggle = localIssuesCache.find(i => i.id === issueId);
+                 if (issueToToggle) {
+                     const newStatus = issueToToggle.status === 'In Progress' ? 'Solved' : 'In Progress';
+                     const newClosureDate = newStatus === 'Solved' ? new Date().toISOString().split('T')[0] : null;
+                     const issueDocRef = doc(db, `artifacts/${appId}/users/${userId}/known-issues`, issueId);
+                     await updateDoc(issueDocRef, {
+                         status: newStatus,
+                         closureDate: newClosureDate
+                     });
+                 }
+            }
+        });
+    };
+
+    const showEditIssueModal = async (issueId) => {
+        if(!userId) return;
+        const issueDocRef = doc(db, `artifacts/${appId}/users/${userId}/known-issues`, issueId);
+        const issueSnap = await getDoc(issueDocRef);
+        if(!issueSnap.exists()) return;
+        const issue = issueSnap.data();
+
+         const modalHTML = `
+            <div class="modal-overlay" id="edit-modal-overlay">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Edit Issue</h3>
+                    <form id="edit-issue-form" class="space-y-4">
+                        <div>
+                            <label for="edit-issue-title" class="block text-sm font-medium text-primary">Title</label>
+                            <input type="text" id="edit-issue-title" name="issue-title" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                             <label for="edit-issue-date" class="block text-sm font-medium text-primary">Date</label>
+                             <input type="text" id="edit-issue-date" name="issue-date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-issue-description" class="block text-sm font-medium text-primary">Description</label>
+                            <textarea id="edit-issue-description" name="issue-description" rows="9" required class="mt-1 block w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button type="button" id="cancel-edit-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                            <button type="submit" class="py-2 px-4 rounded-md bg-accent text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+
+        document.getElementById('edit-issue-title').value = issue.title;
+        document.getElementById('edit-issue-description').value = issue.description;
+        flatpickr("#edit-issue-date", { dateFormat: "Y-m-d", defaultDate: issue.date });
+
+        document.getElementById('edit-issue-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            await updateDoc(issueDocRef, {
+                title: sanitizeHTML(form['issue-title'].value),
+                date: form['issue-date'].value,
+                description: sanitizeHTML(form['issue-description'].value)
+            });
+            modalContainer.innerHTML = '';
+        };
+
+        document.getElementById('cancel-edit-btn').onclick = () => modalContainer.innerHTML = '';
+        document.getElementById('edit-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'edit-modal-overlay') modalContainer.innerHTML = '';
+        };
+    };
+
+    const renderDutysContent = () => {
+        return `
+            <div id="dutys-page-container">
+                <div class="mb-8 p-6 border border-primary rounded-lg bg-primary">
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Log a New Duty</h3>
+                    <form id="duty-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="duty-name" class="block text-sm font-medium text-primary">Name</label>
+                            <input type="text" id="duty-name" name="name" required class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="duty-date" class="block text-sm font-medium text-primary">Date</label>
+                            <input type="text" id="duty-date" name="date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="duty-link" class="block text-sm font-medium text-primary">Duty (Link)</label>
+                            <input type="url" id="duty-link" name="dutyLink" placeholder="https://..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="duty-ticket" class="block text-sm font-medium text-primary">Ticket Opened (Link)</label>
+                            <input type="url" id="duty-ticket" name="ticketLink" placeholder="https://..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="duty-reason" class="block text-sm font-medium text-primary">Reason for Duty</label>
+                            <textarea id="duty-reason" name="reason" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div>
+                            <label for="duty-resolved-by" class="block text-sm font-medium text-primary">Resolved By</label>
+                            <input type="text" id="duty-resolved-by" name="resolvedBy" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="duty-opened-correctly" class="block text-sm font-medium text-primary">Opened Correctly?</label>
+                            <select id="duty-opened-correctly" name="openedCorrectly" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="duty-resolution" class="block text-sm font-medium text-primary">Resolution</label>
+                            <textarea id="duty-resolution" name="resolution" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="duty-comments" class="block text-sm font-medium text-primary">Comments</label>
+                            <textarea id="duty-comments" name="comments" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:opacity-90">Add Duty Log</button>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-primary">Duty Logs</h3>
+                    <input type="text" id="duty-search" class="w-full p-2 border border-primary rounded-md mb-4 focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary" placeholder="Search all fields...">
+                    <div class="overflow-x-auto rounded-lg border border-primary">
+                        <table id="duty-table" class="min-w-full bg-secondary">
+                            <thead>
+                                <tr class="bg-primary">
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Name</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Date</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Duty</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Ticket</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Reason</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Resolved By</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Resolution</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Opened Correctly?</th>
+                                    <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Comments</th>
+                                    <th class="py-3 px-4 text-right font-semibold text-secondary uppercase text-sm">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const initializeDutysPage = () => {
+        if (!userId) return;
+        const form = document.getElementById('duty-form');
+        const searchInput = document.getElementById('duty-search');
+        const tableBody = document.querySelector('#duty-table tbody');
+        let localDutysCache = [];
+        const dutysCollection = collection(db, `artifacts/${appId}/users/${userId}/dutys`);
+
+        flatpickr("#duty-date", { dateFormat: "Y-m-d", defaultDate: "today" });
+
+        const renderDutys = (dutys) => {
+            tableBody.innerHTML = '';
+            
+            dutys.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            dutys.forEach(duty => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-primary';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(duty.name)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${duty.date}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary"><a href="${duty.dutyLink}" target="_blank" rel="noopener noreferrer">${duty.dutyLink ? 'Link' : ''}</a></td>
+                    <td class="py-3 px-4 border-b border-primary text-primary"><a href="${duty.ticketLink}" target="_blank" rel="noopener noreferrer">${duty.ticketLink ? 'Link' : ''}</a></td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(duty.reason)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(duty.resolvedBy)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(duty.resolution)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${duty.openedCorrectly}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${sanitizeHTML(duty.comments)}</td>
+                    <td class="py-3 px-4 border-b border-primary text-right">
+                        <div class="actions-wrapper justify-end">
+                            <button class="edit-duty-btn p-1 rounded-md bg-edit text-white" data-id="${duty.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg></button>
+                            <button class="delete-duty-btn p-1 rounded-md bg-danger text-white" data-id="${duty.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+        
+        const unsubscribe = onSnapshot(dutysCollection, snapshot => {
+            localDutysCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderDutys(localDutysCache);
+        });
+        unsubscribes.push(unsubscribe);
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const newDuty = {};
+            for(let [key, value] of formData.entries()) {
+                newDuty[key] = sanitizeHTML(value);
+            }
+            newDuty.createdAt = new Date();
+            await addDoc(dutysCollection, newDuty);
+            form.reset();
+            flatpickr("#duty-date", { dateFormat: "Y-m-d", defaultDate: "today" });
+        });
+
+        searchInput.addEventListener('keyup', () => {
+             const searchTerm = searchInput.value.toLowerCase();
+             const filtered = localDutysCache.filter(duty => Object.values(duty).some(val => String(val).toLowerCase().includes(searchTerm)));
+             renderDutys(filtered);
+        });
+
+        tableBody.addEventListener('click', e => {
+            const deleteBtn = e.target.closest('.delete-duty-btn');
+            if (deleteBtn) {
+                const dutyId = deleteBtn.dataset.id;
+                const dutyToArchive = localDutysCache.find(d => d.id === dutyId);
+                showGenericDeleteConfirmation({
+                    itemType: 'duty log',
+                    onConfirm: () => {
+                        if(dutyToArchive) archiveItem('Duty', dutyToArchive);
+                    }
+                });
+            }
+            const editBtn = e.target.closest('.edit-duty-btn');
+            if(editBtn) {
+                const dutyId = editBtn.dataset.id;
+                showEditDutyModal(dutyId);
+            }
+        });
+    };
+
+    const showEditDutyModal = async (dutyId) => {
+        if(!userId) return;
+        const dutyDocRef = doc(db, `artifacts/${appId}/users/${userId}/dutys`, dutyId);
+        const dutySnap = await getDoc(dutyDocRef);
+        if(!dutySnap.exists()) return;
+        const duty = dutySnap.data();
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="edit-modal-overlay">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Edit Duty Log</h3>
+                    <form id="edit-duty-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="edit-duty-name" class="block text-sm font-medium text-primary">Name</label>
+                            <input type="text" id="edit-duty-name" name="name" required class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-duty-date" class="block text-sm font-medium text-primary">Date</label>
+                            <input type="text" id="edit-duty-date" name="date" required placeholder="Select Date..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-duty-link" class="block text-sm font-medium text-primary">Duty (Link)</label>
+                            <input type="url" id="edit-duty-link" name="dutyLink" placeholder="https://..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-duty-ticket" class="block text-sm font-medium text-primary">Ticket Opened (Link)</label>
+                            <input type="url" id="edit-duty-ticket" name="ticketLink" placeholder="https://..." class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="edit-duty-reason" class="block text-sm font-medium text-primary">Reason for Duty</label>
+                            <textarea id="edit-duty-reason" name="reason" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div>
+                            <label for="edit-duty-resolved-by" class="block text-sm font-medium text-primary">Resolved By</label>
+                            <input type="text" id="edit-duty-resolved-by" name="resolvedBy" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                        </div>
+                        <div>
+                            <label for="edit-duty-opened-correctly" class="block text-sm font-medium text-primary">Opened Correctly?</label>
+                            <select id="edit-duty-opened-correctly" name="openedCorrectly" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary">
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="edit-duty-resolution" class="block text-sm font-medium text-primary">Resolution</label>
+                            <textarea id="edit-duty-resolution" name="resolution" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="edit-duty-comments" class="block text-sm font-medium text-primary">Comments</label>
+                            <textarea id="edit-duty-comments" name="comments" rows="4" class="mt-1 block w-full p-2 border border-primary rounded-md bg-secondary text-primary"></textarea>
+                        </div>
+                        <div class="md:col-span-2 flex justify-end gap-4">
+                            <button type="button" id="cancel-edit-btn" class="py-2 px-4 rounded-md bg-secondary text-primary">Cancel</button>
+                            <button type="submit" class="py-2 px-4 rounded-md bg-accent text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+        
+        // Populate form
+        const form = document.getElementById('edit-duty-form');
+        for(const key in duty) {
+            if(form.elements[key]) {
+                form.elements[key].value = duty[key];
+            }
+        }
+        flatpickr("#edit-duty-date", { dateFormat: "Y-m-d", defaultDate: duty.date });
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const updatedDuty = {};
+            for(let [key, value] of formData.entries()) {
+                updatedDuty[key] = sanitizeHTML(value);
+            }
+            await updateDoc(dutyDocRef, updatedDuty);
+            modalContainer.innerHTML = '';
+        };
+
+        document.getElementById('cancel-edit-btn').onclick = () => modalContainer.innerHTML = '';
+        document.getElementById('edit-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'edit-modal-overlay') modalContainer.innerHTML = '';
+        };
+    };
+
+    const renderArchivedContent = () => {
+       return `
+            <div id="archived-page-container">
+                 <div class="flex flex-col md:flex-row gap-4 mb-4 p-4 border border-primary rounded-lg bg-primary">
+                    <div class="w-full md:w-1/3">
+                        <label for="archive-type-filter" class="sr-only">Filter by Type</label>
+                         <select id="archive-type-filter" class="w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                            <option value="">All Item Types</option>
+                            <option>Ticket</option>
+                            <option>Task</option>
+                            <option>Synchro</option>
+                            <option>Known Issue</option>
+                            <option>Duty</option>
+                        </select>
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <label for="archive-date-filter" class="sr-only">Filter by Date</label>
+                        <input type="text" id="archive-date-filter" placeholder="Filter by archived date range..." class="w-full p-2 border border-primary rounded-md focus:ring-2 focus:ring-accent focus:border-accent bg-secondary text-primary">
+                    </div>
+                     <div class="w-full md:w-1/3 flex justify-end">
+                        <button id="permanent-delete-btn" class="py-2 px-4 rounded-md bg-danger text-white" disabled>Delete Selected</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto rounded-lg border border-primary">
+                    <table id="archive-table" class="min-w-full bg-secondary">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th class="py-3 px-4 text-left"><input type="checkbox" id="select-all-archive"></th>
+                                <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Type</th>
+                                <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Content</th>
+                                <th class="py-3 px-4 text-left font-semibold text-secondary uppercase text-sm">Archived Date</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+       `;
+    };
+
+    const initializeArchivedPage = () => {
+        if (!userId) return;
+        const typeFilter = document.getElementById('archive-type-filter');
+        const dateFilter = document.getElementById('archive-date-filter');
+        const deleteBtn = document.getElementById('permanent-delete-btn');
+        const tableBody = document.querySelector('#archive-table tbody');
+        const selectAllCheckbox = document.getElementById('select-all-archive');
+        let localArchiveCache = [];
+        const archiveCollection = collection(db, `artifacts/${appId}/users/${userId}/archivedItems`);
+
+        const datePicker = flatpickr(dateFilter, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            onChange: () => filterAndRenderArchive()
+        });
+
+        const getSummary = (item) => {
+            switch(item.archivedFrom) {
+                case 'Ticket': return `[${item.category}] ${item.problem}`;
+                case 'Task': return `[${item.assignedTo}] ${item.text}`;
+                case 'Synchro': return `[${item.type}] ${item.info}`;
+                case 'Known Issue': return `[${item.status}] ${item.title}`;
+                case 'Duty': return `[${item.name}] ${item.reason}`;
+                default: return 'Unknown item';
+            }
+        };
+
+        const renderArchive = (items) => {
+            tableBody.innerHTML = '';
+            if (items.length === 0) {
+                 tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary p-4">The archive is empty.</td></tr>';
+                 return;
+            }
+            
+            items.sort((a,b) => new Date(b.archivedDate) - new Date(a.archivedDate));
+            
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-primary';
+                const summary = sanitizeHTML(getSummary(item));
+                const truncatedSummary = summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
+
+                row.innerHTML = `
+                    <td class="py-3 px-4 border-b border-primary text-primary"><input type="checkbox" class="archive-item-checkbox" data-id="${item.id}"></td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${item.archivedFrom}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary" title="${summary}">${truncatedSummary}</td>
+                    <td class="py-3 px-4 border-b border-primary text-primary">${item.archivedDate}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        const filterAndRenderArchive = () => {
+            const typeValue = typeFilter.value;
+            const selectedDates = datePicker.selectedDates;
+
+            const filtered = localArchiveCache.filter(item => {
+                const typeMatch = !typeValue || item.archivedFrom === typeValue;
+                let dateMatch = true;
+                if(selectedDates.length === 2) {
+                    const itemDate = new Date(item.archivedDate);
+                    const startDate = selectedDates[0];
+                    startDate.setHours(0,0,0,0);
+                    const endDate = selectedDates[1];
+                    endDate.setHours(23,59,59,999);
+                    dateMatch = itemDate >= startDate && itemDate <= endDate;
+                }
+                return typeMatch && dateMatch;
+            });
+            renderArchive(filtered);
+        };
+        
+        const unsubscribe = onSnapshot(archiveCollection, snapshot => {
+            localArchiveCache = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            filterAndRenderArchive();
+        });
+        unsubscribes.push(unsubscribe);
+
+        const updateDeleteButtonState = () => {
+            const selected = tableBody.querySelectorAll('.archive-item-checkbox:checked');
+            deleteBtn.disabled = selected.length === 0;
+        };
+
+        tableBody.addEventListener('change', e => {
+            if (e.target.classList.contains('archive-item-checkbox')) {
+                updateDeleteButtonState();
+            }
+        });
+        
+        selectAllCheckbox.addEventListener('change', e => {
+            const checkboxes = tableBody.querySelectorAll('.archive-item-checkbox');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+            updateDeleteButtonState();
+        });
+
+        typeFilter.addEventListener('change', filterAndRenderArchive);
+
+        deleteBtn.addEventListener('click', () => {
+            const selectedIds = [...tableBody.querySelectorAll('.archive-item-checkbox:checked')].map(cb => cb.dataset.id);
+            if(selectedIds.length > 0) {
+                 showGenericDeleteConfirmation({
+                    itemType: 'item',
+                    permanent: true,
+                    onConfirm: async () => {
+                        for (const id of selectedIds) {
+                            const itemDocRef = doc(db, `artifacts/${appId}/users/${userId}/archivedItems`, id);
+                            await deleteDoc(itemDocRef);
+                        }
+                    }
+                });
+            }
+        });
+    };
+
+
+    // --- THEME ---
+    const applyTheme = async (isDark) => {
+        document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.classList.toggle('light', !isDark);
+        document.getElementById('theme-toggle').checked = isDark;
+        if (userId) {
+            const settingsDocRef = doc(db, `artifacts/${appId}/users/${userId}/settings/theme`);
+            try {
+                await setDoc(settingsDocRef, { isDark: isDark });
+            } catch (e) {
+                console.error("Could not save theme preference:", e);
+            }
+        }
+    };
+    
+    document.getElementById('theme-toggle').addEventListener('change', (e) => applyTheme(e.target.checked));
+
+
+    // --- KEYBOARD SHORTCUTS ---
+
+    const showShortcutsModal = () => {
+        const shortcuts = [
+            { key: '?', description: 'Show this help menu' },
+            { key: 'Esc', description: 'Close any open modal or dialog' },
+            { key: '1 - 9', description: 'Navigate to sidebar items by position' }
+        ];
+
+        const modalHTML = `
+            <div class="modal-overlay" id="shortcuts-modal-overlay">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Keyboard Shortcuts</h3>
+                        <button id="close-shortcuts-btn" class="text-2xl leading-none p-1 rounded-full hover:bg-hover-secondary">&times;</button>
+                    </div>
+                    <ul class="space-y-2">
+                        ${shortcuts.map(sc => `
+                            <li class="flex items-center justify-between p-2 rounded-md bg-primary">
+                                <span class="text-secondary">${sc.description}</span>
+                                <kbd class="px-2 py-1 text-sm font-semibold text-primary bg-secondary rounded-md border border-primary">${sc.key}</kbd>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+        modalContainer.innerHTML = modalHTML;
+
+        const closeModal = () => modalContainer.innerHTML = '';
+        document.getElementById('close-shortcuts-btn').onclick = closeModal;
+        document.getElementById('shortcuts-modal-overlay').onclick = (e) => {
+            if (e.target.id === 'shortcuts-modal-overlay') closeModal();
+        };
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            if (e.key === 'Escape') {
+                 modalContainer.innerHTML = '';
+            }
+            return;
+        }
+
+        switch(e.key) {
+            case '?':
+                if (e.shiftKey) {
+                    e.preventDefault();
+                    showShortcutsModal();
+                }
+                break;
+            case 'Escape':
+                modalContainer.innerHTML = '';
+                if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+                break;
+            default:
+                if (e.key >= '1' && e.key <= '9') {
+                    const navLinks = document.querySelectorAll('#nav-menu .nav-link');
+                    const index = parseInt(e.key) - 1;
+                    if (navLinks.length > index && navLinks[index]) {
+                        navLinks[index].click();
+                    }
+                }
+                break;
         }
     });
 
-    renderContent('home');
-});
+    // --- APPLICATION START ---
+    const startApp = async (user) => {
+        userId = user.uid;
 
+        // Load theme preference
+        const settingsDocRef = doc(db, `artifacts/${appId}/users/${userId}/settings/theme`);
+        const themeSnap = await getDoc(settingsDocRef);
+        let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches; // Default
+        if (themeSnap.exists()) {
+            isDark = themeSnap.data().isDark;
+        }
+        applyTheme(isDark);
+        
+        // Setup navigation
+        navMenu.innerHTML = ''; // Clear any previous state
+        navItems.forEach(item => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.dataset.page = item.id;
+            link.className = 'nav-link flex items-center p-2 my-1 rounded-md text-sidebar hover:bg-sidebar-hover transition-colors';
+            link.innerHTML = `${item.icon} <span class="ml-3">${item.text}</span>`;
+            navMenu.appendChild(link);
+        });
+
+        navMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            const link = e.target.closest('a.nav-link');
+            if (link && link.dataset.page) {
+                renderContent(link.dataset.page);
+                if (window.innerWidth < 1024) sidebar.classList.add('-translate-x-full');
+            }
+        });
+        
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('[id^="dropdown-btn-"]')) {
+                 document.querySelectorAll('[id^="dropdown-content-"]').forEach(content => content.classList.add('hidden'));
+                document.querySelectorAll('[id^="dropdown-btn-"] svg').forEach(svg => svg.classList.remove('rotate-180'));
+            }
+        });
+        
+        // Initial render
+        renderContent('home');
+        
+        // Hide loading overlay
+        const appContainer = document.getElementById('app-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                if(appContainer) appContainer.classList.add('loaded');
+            }, 300);
+        } else if(appContainer) {
+            appContainer.classList.add('loaded');
+        }
+    }
+
+    window.firebase.onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // User is signed in.
+            startApp(user);
+        } else {
+            // User is signed out. Attempt to sign in.
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await window.firebase.signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await window.firebase.signInAnonymously(auth);
+                }
+                // The onAuthStateChanged listener will be called again with the new user state.
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                // Handle auth failure (e.g., show an error message).
+            }
+        }
+    });
+
+});

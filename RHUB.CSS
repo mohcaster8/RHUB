@@ -12,6 +12,8 @@
   --dkt-secondary: #676565;
   --dkt-primary: #101010;
   --dkt-green-d1: #7AFFA6;
+  --dkt-red: #ef4444; 
+  --dkt-yellow: #f59e0b;
   
   /* -- SEMANTIC VARIABLES (LIGHT) -- */
   --color-bg-primary: var(--dkt-background-quiet);
@@ -23,6 +25,8 @@
   --color-bg-hover-primary: var(--dkt-background-quiet);
   --color-bg-hover-secondary: var(--dkt-border);
   --color-bg-hover-sidebar: var(--dkt-border);
+  --color-bg-danger: var(--dkt-red);
+  --color-bg-edit: var(--dkt-yellow);
   --color-bg-nav-active: var(--dkt-blue);
 
   --color-text-primary: var(--dkt-primary);
@@ -43,6 +47,8 @@
   --dkt-secondary: #a0a0a0;
   --dkt-primary: #F0EFED;
   --dkt-green-d1: #7AFFA6;
+  --dkt-red: #ef4444;
+  --dkt-yellow: #f59e0b;
 
   /* -- SEMANTIC VARIABLES (DARK) -- */
   --color-bg-primary: var(--dkt-background-quiet);
@@ -54,6 +60,8 @@
   --color-bg-hover-primary: #2a2a2a;
   --color-bg-hover-secondary: #3a3a3a;
   --color-bg-hover-sidebar: var(--dkt-background-quiet);
+  --color-bg-danger: var(--dkt-red);
+  --color-bg-edit: var(--dkt-yellow);
   --color-bg-nav-active: var(--dkt-blue);
   
   --color-text-primary: var(--dkt-primary);
@@ -81,6 +89,13 @@ body {
 
 #content-area {
     background-color: var(--color-bg-secondary);
+}
+
+#app-container {
+    visibility: hidden; /* Hide app until JS loads */
+}
+#app-container.loaded {
+    visibility: visible;
 }
 
 .main-content {
@@ -122,6 +137,77 @@ input:checked ~ .block { background-color: var(--dkt-green-d1); }
     background-color: var(--color-bg-hover-secondary);
 }
 
+/* Compact Table Style */
+.compact-table th, .compact-table td {
+    padding: 0.25rem 0.5rem; /* Equivalent to py-1 px-2 */
+    font-size: 0.875rem; /* Equivalent to text-sm */
+}
+
+/* Action Buttons for Ticket List & Cards */
+.ticket-row .actions-wrapper, .task-card .card-actions, .synchro-card .card-actions, .known-issue-card .card-actions, #duty-table tr .actions-wrapper {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    display: flex;
+    gap: 0.5rem; /* space-x-2 */
+}
+.ticket-row:hover .actions-wrapper, .task-card:hover .card-actions, .synchro-card:hover .card-actions, .known-issue-card:hover .card-actions, #duty-table tr:hover .actions-wrapper {
+    opacity: 1;
+}
+
+
+/* Confirmation & Edit Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 800px; /* Wider for forms */
+    text-align: left;
+    border: 1px solid var(--color-border-primary);
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg-secondary);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+}
+
+.loader {
+    border: 4px solid var(--color-border-primary);
+    border-top: 4px solid var(--color-text-accent);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Utility classes for dynamic content */
 .text-primary { color: var(--color-text-primary); }
 .text-secondary { color: var(--color-text-secondary); }
@@ -134,6 +220,8 @@ input:checked ~ .block { background-color: var(--dkt-green-d1); }
 .bg-accent { background-color: var(--color-bg-accent); }
 .bg-info { background-color: var(--color-bg-info); }
 .bg-sidebar { background-color: var(--color-bg-sidebar); }
+.bg-danger { background-color: var(--color-bg-danger); }
+.bg-edit { background-color: var(--color-bg-edit); }
 
 .border-primary { border-color: var(--color-border-primary); }
 .border-accent { border-color: var(--color-border-accent); }
@@ -145,3 +233,80 @@ input:checked ~ .block { background-color: var(--dkt-green-d1); }
   background-color: var(--color-bg-hover-sidebar);
 }
 
+
+/* Task Board Specific Styles */
+.task-column .task-list {
+    background-color: var(--color-bg-primary);
+    border: 1px dashed var(--color-border-primary);
+}
+.task-card {
+    padding: 1rem;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    cursor: grab;
+    transition: box-shadow 0.2s ease-in-out;
+}
+.task-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+.task-card .task-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+.task-card.dragging {
+    opacity: 0.5;
+    background: var(--color-bg-hover-secondary);
+}
+.task-list.drag-over {
+    border: 2px dashed var(--color-text-accent);
+}
+
+/* Known Issues Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-solved {
+    background-color: var(--dkt-green-d1);
+    color: #052e16; /* Dark green text for light mode */
+}
+.dark .status-solved {
+    color: var(--dkt-green-d1);
+    background-color: #166534; /* Darker green bg for dark mode */
+}
+
+.status-inprogress {
+    background-color: var(--dkt-yellow);
+    color: #422006; /* Dark orange text for light mode */
+}
+.dark .status-inprogress {
+    color: var(--dkt-yellow);
+    background-color: #854d0e; /* Darker yellow/orange bg for dark mode */
+}
+
+/* Duty Table Link Styling and word wrapping */
+#duty-table a {
+    color: var(--color-text-accent);
+    text-decoration: underline;
+}
+#duty-table a:hover {
+    opacity: 0.8;
+}
+
+#duty-table td {
+    white-space: normal; /* Allow text to wrap */
+    word-break: break-word; /* Break long words */
+}
+
+/* Archive page styles */
+#archive-table td, #archive-table th {
+    padding: 0.5rem;
+}

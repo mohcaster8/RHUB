@@ -87,27 +87,11 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
     <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Expose Firebase modules to the global scope so RHUB.js can use them
-        window.firebase = {
-            initializeApp,
-            getAuth,
-            signInAnonymously,
-            signInWithCustomToken,
-            onAuthStateChanged,
-            getFirestore
-        };
-    </script>
-    
-    <!-- Application Scripts -->
-    <script src="data.js"></script>
+    <script src="data.js" type="module"></script>
     <script src="rhub.js" type="module"></script>
 
 </body>
 </html>
 
 <!-- Force redeploy -->
+

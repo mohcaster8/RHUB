@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="RHUB.css">
+    <link rel="stylesheet" href="rhub.css">
 </head>
 <body class="bg-secondary text-primary">
 
@@ -105,7 +105,8 @@
     
     <!-- Application Scripts -->
     <script src="data.js"></script>
-    <script src="RHUB.js" type="module"></script>
+    <script src="rhub.js" type="module"></script>
 
 </body>
 </html>
+

@@ -19,34 +19,52 @@ import {
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Firebase Initialization ---
-    let app, db, auth, userId;
+    let app, db, auth, userId; // <<< Declare auth here at the top of the scope
     let unsubscribes = [];
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    
+
     try {
-        
         const firebaseConfig = {
-          apiKey: "AIzaSyDjg8bck9o9tt8dzXA6LDwmaA8U6W26OC0",
-          authDomain: "fir-config-d0b9b.firebaseapp.com",
-          projectId: "fir-config-d0b9b",
-          storageBucket: "fir-config-d0b9b.firebasestorage.app",
-          messagingSenderId: "206796264808",
-          appId: "1:206796264808:web:4686c12f0e16a0c7f5f2dd",
-          measurementId: "G-NW84J4TKFY"
+            // Your config here
         };
-    
+
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
-        auth = getAuth(app);
+        auth = getAuth(app); // Assign auth here
+
+        // >>> MOVE THIS BLOCK HERE <<<
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                console.log("Authenticated with Firebase UID:", userId);
+                startApp(); // Function to start the application after authentication
+            } else {
+                console.log("No user signed in. Attempting anonymous sign-in...");
+                try {
+                    // For live deployment, __initial_auth_token will be undefined, so it goes to signInAnonymously
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth); // This should create an anonymous user
+                    }
+                } catch (error) {
+                    console.error("Error during anonymous sign-in or custom token sign-in:", error);
+                    // Optionally show a message to the user
+                }
+            }
+        });
+        // >>> END OF MOVED BLOCK <<<
+
     } catch (e) {
         console.error("Firebase config is not available or invalid. App will not function correctly.", e);
         // Hide loader and show an error message.
-        const loadingOverlay = document.getElementById('loading-overlay');
         if (loadingOverlay) loadingOverlay.style.display = 'none';
-        document.getElementById('app-container').innerHTML = `<div class="w-full h-full flex items-center justify-center p-8 text-center text-red-500">Could not initialize the application. Please check the console for errors.</div>`;
+        if (appContainer) appContainer.innerHTML = '<div class="w-full h-full flex items-center justify-center text-red-500 font-bold">Failed to load app. Check console for details.</div>';
         return;
     }
+
+    // ... (rest of your rhub.js file)
     
     // --- DOM element references ---
     const navMenu = document.getElementById('nav-menu');
@@ -1952,5 +1970,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
 
 

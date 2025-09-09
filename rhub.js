@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
           measurementId: "G-NW84J4TKFY"
         };
     
-        app = window.firebase.initializeApp(firebaseConfig);
-        db = window.firebase.getFirestore(app);
-        auth = window.firebase.getAuth(app);
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
     } catch (e) {
         console.error("Firebase config is not available or invalid. App will not function correctly.", e);
         // Hide loader and show an error message.
@@ -1952,4 +1952,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
 
